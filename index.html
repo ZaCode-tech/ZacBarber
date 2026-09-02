@@ -34,7 +34,7 @@
         header {
             background-color: var(--bg-secondary);
             border-bottom: 1px solid var(--border-color);
-            padding: 15px 25px;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -44,12 +44,12 @@
         .user-profile-widget {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
 
         .avatar-container {
-            width: 70px;
-            height: 70px;
+            width: 65px;
+            height: 65px;
             border-radius: 50%;
             background-color: #000;
             border: 2px solid var(--accent-color);
@@ -58,21 +58,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-shrink: 0;
         }
 
         .avatar-canvas {
             width: 100%;
             height: 100%;
-            position: relative;
         }
 
         .user-info h3 {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--text-main);
         }
 
         .user-info p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--accent-color);
             margin-top: 2px;
         }
@@ -82,54 +82,55 @@
             color: #121214;
             font-weight: bold;
             border: none;
-            padding: 10px 18px;
+            padding: 8px 14px;
             border-radius: 6px;
             cursor: pointer;
+            font-size: 0.85rem;
             transition: all 0.2s ease;
         }
 
         .btn-action:hover {
             opacity: 0.9;
-            transform: translateY(-2px);
+            transform: translateY(-1px);
         }
 
         /* MAIN CONTENT CONTAINER */
         main {
             flex: 1;
-            max-width: 900px;
+            max-width: 800px;
             width: 100%;
-            margin: 30px auto;
-            padding: 0 20px;
+            margin: 20px auto;
+            padding: 0 15px;
         }
 
         .card {
             background-color: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 10px;
-            padding: 25px;
-            margin-bottom: 25px;
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         /* CREATION FORM */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: var(--text-muted);
-            font-size: 0.95rem;
+            font-size: 0.9rem;
         }
 
         .form-control {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: var(--bg-primary);
             border: 1px solid var(--border-color);
             border-radius: 6px;
             color: #fff;
-            font-size: 1rem;
+            font-size: 0.95rem;
         }
 
         .form-control:focus {
@@ -139,19 +140,19 @@
 
         .options-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+            gap: 10px;
         }
 
         .option-btn {
             background-color: var(--bg-primary);
             border: 2px solid var(--border-color);
-            padding: 12px;
+            padding: 10px;
             border-radius: 8px;
             cursor: pointer;
             text-align: center;
             color: var(--text-main);
-            transition: all 0.2s ease;
+            font-size: 0.85rem;
         }
 
         .option-btn.selected {
@@ -165,16 +166,16 @@
             align-items: center;
             justify-content: space-between;
             background: var(--bg-card);
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             margin-top: 15px;
         }
 
         .progress-bar-bg {
             width: 100%;
-            height: 12px;
+            height: 10px;
             background-color: var(--bg-primary);
-            border-radius: 6px;
+            border-radius: 5px;
             overflow: hidden;
             margin-top: 10px;
         }
@@ -183,17 +184,24 @@
             height: 100%;
             background-color: var(--accent-color);
             width: 0%;
-            transition: width 0.4s ease;
+            transition: width 0.3s ease;
         }
 
         .hidden {
             display: none !important;
         }
 
-        .flex-between {
+        .simulator-box {
+            margin-top: 25px;
+            border-top: 1px dashed var(--border-color);
+            padding-top: 15px;
+        }
+
+        .test-input-group {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 10px;
+            margin-top: 12px;
         }
     </style>
 </head>
@@ -210,34 +218,34 @@
             </div>
         </div>
         <div>
-            <button class="btn-action" onclick="registerHaircut()">✂️ Cortei o Cabelo Hoje</button>
-            <button class="btn-action" style="background:#444; color:#fff; margin-left: 5px;" onclick="resetAccount()">Editar Perfil</button>
+            <button class="btn-action" onclick="registerHaircut()">✂️ Cortei Hoje</button>
+            <button class="btn-action" style="background:#444; color:#fff; margin-left: 4px;" onclick="resetAccount()">Editar</button>
         </div>
     </header>
 
     <main>
         <section id="creationSection" class="card">
-            <h2 style="margin-bottom: 20px; color: var(--accent-color);">Criar Seu Perfil de Cliente</h2>
+            <h2 style="margin-bottom: 18px; color: var(--accent-color); font-size: 1.3rem;">Criar Perfil do Cliente</h2>
             <form id="avatarForm">
                 
                 <div class="form-group">
-                    <label for="userName">Seu Nome Completo:</label>
-                    <input type="text" id="userName" class="form-control" placeholder="Ex: Zachary Gonçalves" required>
+                    <label for="userName">Seu Nome:</label>
+                    <input type="text" id="userName" class="form-control" placeholder="Ex: Zack" required>
                 </div>
 
                 <div class="form-group">
-                    <label>1. Selecione o Tom de Pele:</label>
+                    <label>1. Tom de Pele:</label>
                     <div class="options-grid" id="skinOptions">
                         <div class="option-btn selected" data-value="branco" onclick="selectOption('skinOptions', this)">
-                            <div style="width:25px; height:25px; background:#fcd0a1; border-radius:50%; margin:0 auto 5px;"></div>
+                            <div style="width:20px; height:20px; background:#fcd0a1; border-radius:50%; margin:0 auto 4px;"></div>
                             Branco
                         </div>
                         <div class="option-btn" data-value="pardo" onclick="selectOption('skinOptions', this)">
-                            <div style="width:25px; height:25px; background:#c88b56; border-radius:50%; margin:0 auto 5px;"></div>
+                            <div style="width:20px; height:20px; background:#c88b56; border-radius:50%; margin:0 auto 4px;"></div>
                             Pardo
                         </div>
                         <div class="option-btn" data-value="negro" onclick="selectOption('skinOptions', this)">
-                            <div style="width:25px; height:25px; background:#5a3721; border-radius:50%; margin:0 auto 5px;"></div>
+                            <div style="width:20px; height:20px; background:#5a3721; border-radius:50%; margin:0 auto 4px;"></div>
                             Negro
                         </div>
                     </div>
@@ -255,26 +263,26 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-action" style="width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 10px;">
-                    Criar Personagem e Salvar
+                <button type="submit" class="btn-action" style="width: 100%; padding: 12px; font-size: 1rem; margin-top: 5px;">
+                    Salvar Personagem
                 </button>
             </form>
         </section>
 
         <section id="dashboardSection" class="card hidden">
-            <h2 style="color: var(--accent-color); margin-bottom: 15px;">Evolução do Cabelo</h2>
+            <h2 style="color: var(--accent-color); margin-bottom: 10px; font-size: 1.3rem;">Evolução do Cabelo</h2>
             
-            <p style="color: var(--text-muted); margin-bottom: 20px;">
-                Conforme as semanas passam, o cabelo do seu avatar cresce automaticamente. Quando você for à barbearia e cortar o cabelo, aperte o botão para zerar a fase!
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+                Conforme os dias passam, seu cabelo cresce no avatar. Ao cortar o cabelo na barbearia, clique no botão para zerar a fase!
             </p>
 
             <div class="hair-status-box">
                 <div>
-                    <h4 id="statusTitle">Cabelo Recém Cortado</h4>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);" id="daysPassedText">0 dias desde o último corte</p>
+                    <h4 id="statusTitle" style="font-size: 1rem;">Cabelo Recém Cortado</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-muted);" id="daysPassedText">0 dias desde o último corte</p>
                 </div>
-                <div style="text-align: right;">
-                    <span id="stageBadge" style="background: var(--accent-color); color: #000; padding: 5px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;">
+                <div>
+                    <span id="stageBadge" style="background: var(--accent-color); color: #000; padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.85rem;">
                         Fase 1
                     </span>
                 </div>
@@ -284,18 +292,24 @@
                 <div id="progressBar" class="progress-bar-fill"></div>
             </div>
 
-            <div style="margin-top: 35px; border-top: 1px dashed var(--border-color); padding-top: 20px;">
-                <h4>🧪 Testar Crescimento (Simulador):</h4>
-                <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
-                    Deslize para ver como seu avatar ficará com o passar das semanas:
-                </p>
-                <input type="range" id="stageSimulator" min="1" max="26" value="1" style="width: 100%; accent-color: var(--accent-color);" oninput="simulateStage(this.value)">
+            <div class="simulator-box">
+                <h4 style="font-size: 0.95rem; color: var(--accent-color);">🧪 Testar Crescimento (Simulador):</h4>
+                
+                <div class="test-input-group">
+                    <label for="daysInput" style="font-size: 0.85rem; color: var(--text-muted);">Simular por Dias:</label>
+                    <input type="number" id="daysInput" class="form-control" style="width: 90px; padding: 6px;" placeholder="Ex: 14" min="0" oninput="simulateDays(this.value)">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">dias passados</span>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <label style="font-size: 0.85rem; color: var(--text-muted); display: block; margin-bottom: 5px;">Simular por Fase (1 a 26):</label>
+                    <input type="range" id="stageSimulator" min="1" max="26" value="1" style="width: 100%; accent-color: var(--accent-color);" oninput="simulateStage(this.value)">
+                </div>
             </div>
         </section>
     </main>
 
     <script>
-        // CONFIG & CONSTANTS
         const SKIN_COLORS = {
             branco: '#fcd0a1',
             pardo: '#c88b56',
@@ -304,17 +318,14 @@
 
         let userData = null;
 
-        // INITIALIZATION
         window.addEventListener('DOMContentLoaded', () => {
             const saved = localStorage.getItem('barber_user_avatar');
             if (saved) {
                 userData = JSON.parse(saved);
-                updateCurrentStage();
                 renderDashboard();
             }
         });
 
-        // OPTION SELECTION LOGIC
         function selectOption(containerId, element) {
             const container = document.getElementById(containerId);
             container.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('selected'));
@@ -326,20 +337,14 @@
             return selected ? selected.getAttribute('data-value') : null;
         }
 
-        // FORM SUBMISSION
         document.getElementById('avatarForm').addEventListener('submit', (e) => {
             e.preventDefault();
-            const name = document.getElementById('userName').value.trim();
-            const skin = getSelectedValue('skinOptions');
-            const hairType = getSelectedValue('hairTypeOptions');
-
             userData = {
-                name: name,
-                skin: skin,
-                hairType: hairType,
+                name: document.getElementById('userName').value.trim(),
+                skin: getSelectedValue('skinOptions'),
+                hairType: getSelectedValue('hairTypeOptions'),
                 lastCutDate: new Date().getTime()
             };
-
             saveUserData();
             renderDashboard();
         });
@@ -348,100 +353,117 @@
             localStorage.setItem('barber_user_avatar', JSON.stringify(userData));
         }
 
-        // CALCULATE HAIR GROWTH STAGE (1 to 26)
         function calculateStage() {
-            if (!userData || !userData.lastCutDate) return 1;
-            
+            if (!userData || !userData.lastCutDate) return { stage: 1, diffDays: 0 };
             const now = new Date().getTime();
             const diffDays = Math.floor((now - userData.lastCutDate) / (1000 * 60 * 60 * 24));
-            
-            // Regra: O cabelo avança 1 fase a cada 3.5 dias (~2 fases por semana)
+            // 1 fase a cada 3.5 dias
             const stage = Math.min(26, Math.max(1, Math.floor(diffDays / 3.5) + 1));
             return { stage, diffDays };
         }
 
-        function updateCurrentStage() {
-            const { stage } = calculateStage();
-            userData.currentStage = stage;
-        }
-
-        // RENDER DASHBOARD & AVATAR
         function renderDashboard() {
-            const { stage, diffDays } = calculateStage();
-            const currentStage = userData.simulatedStage || stage;
+            const realData = calculateStage();
+            const days = userData.simulatedDays !== undefined ? userData.simulatedDays : realData.diffDays;
+            const currentStage = userData.simulatedStage !== undefined ? userData.simulatedStage : realData.stage;
 
-            // UI visibility
             document.getElementById('creationSection').classList.add('hidden');
             document.getElementById('dashboardSection').classList.remove('hidden');
             document.getElementById('mainHeader').classList.remove('hidden');
 
-            // Header Texts
             document.getElementById('displayUserName').innerText = userData.name;
             document.getElementById('displayHairStage').innerText = `Fase do cabelo: ${String(currentStage).padStart(2, '0')} / 26`;
 
-            // Dashboard Status
-            document.getElementById('daysPassedText').innerText = `${diffDays} dias desde o último corte`;
+            document.getElementById('daysPassedText').innerText = `${days} dias desde o último corte`;
             document.getElementById('stageBadge').innerText = `Fase ${currentStage}`;
             document.getElementById('progressBar').style.width = `${(currentStage / 26) * 100}%`;
             document.getElementById('stageSimulator').value = currentStage;
 
-            // Draw Avatar in Header
             renderAvatarSVG('headerAvatar', userData.skin, userData.hairType, currentStage);
         }
 
-        // DYNAMIC VECTOR AVATAR RENDERER
+        // DESENHO VETORIAL DO PERSONAGEM (CABELO CORRIGIDO)
         function renderAvatarSVG(containerId, skinType, hairType, stage) {
             const container = document.getElementById(containerId);
             const skinColor = SKIN_COLORS[skinType] || SKIN_COLORS.branco;
             
-            // Variação visual do tamanho do cabelo conforme a fase (1 a 26)
-            const hairVolume = (stage / 26) * 22; // Escala proporcional
-            const hairHeight = 18 + hairVolume;
+            // Cálculo visual do volume crescendo PARA CIMA (sem cobrir o rosto)
+            const growth = (stage - 1) * 0.75; 
+            const topY = Math.max(2, 26 - growth);
+            const sideLeft = Math.max(12, 24 - (growth * 0.3));
+            const sideRight = Math.min(88, 76 + (growth * 0.3));
 
-            let hairSVG = '';
+            let hairPath = '';
 
             if (hairType === 'crespo') {
-                // Desenho dinâmico para cabelo crespo/afro
-                hairSVG = `<path d="M 18 ${45 - hairVolume/2} Q 50 ${12 - hairVolume} 82 ${45 - hairVolume/2} Q 88 55 82 65 Q 50 60 18 65 Z" fill="#221510" stroke="#110a08" stroke-width="2"/>`;
+                // Desenho volumoso crescendo para cima, base fixada na testa (y=42)
+                hairPath = `M ${sideLeft} 42 
+                            C ${sideLeft - 4} ${topY + 8}, 28 ${topY}, 50 ${topY} 
+                            C 72 ${topY}, ${sideRight + 4} ${topY + 8}, ${sideRight} 42 
+                            Q 50 38 ${sideLeft} 42 Z`;
             } else {
-                // Desenho dinâmico para cabelo liso/ondulado
-                hairSVG = `<path d="M 20 ${42 - hairVolume/2} Q 50 ${15 - hairVolume} 80 ${42 - hairVolume/2} Q 85 60 80 70 Q 50 50 20 70 Z" fill="#3a2312" stroke="#1a0f07" stroke-width="2"/>`;
+                // Cabelo liso / ondulado crescendo para cima e lados
+                hairPath = `M ${sideLeft} 42 
+                            Q 50 ${topY - 4} ${sideRight} 42 
+                            Q ${sideRight + 2} 45 ${sideRight} 43 
+                            Q 50 37 ${sideLeft} 43 Z`;
             }
 
             container.innerHTML = `
                 <svg viewBox="0 0 100 100" style="width:100%; height:100%;">
-                    <circle cx="50" cy="52" r="30" fill="${skinColor}" />
+                    <circle cx="21" cy="55" r="5" fill="${skinColor}" />
+                    <circle cx="79" cy="55" r="5" fill="${skinColor}" />
+
+                    <circle cx="50" cy="55" r="28" fill="${skinColor}" />
                     
-                    <circle cx="40" cy="50" r="3" fill="#111" />
-                    <circle cx="60" cy="50" r="3" fill="#111" />
+                    <circle cx="38" cy="53" r="3" fill="#111" />
+                    <circle cx="62" cy="53" r="3" fill="#111" />
                     
-                    <path d="M 35 43 Q 40 41 45 43" stroke="#222" stroke-width="2" fill="none"/>
-                    <path d="M 55 43 Q 60 41 65 43" stroke="#222" stroke-width="2" fill="none"/>
+                    <path d="M 33 46 Q 38 44 43 46" stroke="#222" stroke-width="2" fill="none"/>
+                    <path d="M 57 46 Q 62 44 67 46" stroke="#222" stroke-width="2" fill="none"/>
                     
-                    <path d="M 43 65 Q 50 69 57 65" stroke="#a35858" stroke-width="2" fill="none" stroke-linecap="round"/>
+                    <path d="M 43 68 Q 50 72 57 68" stroke="#a35858" stroke-width="2" fill="none" stroke-linecap="round"/>
                     
-                    ${hairSVG}
+                    <path d="${hairPath}" fill="${hairType === 'crespo' ? '#1a110b' : '#2d1c10'}" stroke="#000" stroke-width="1"/>
                 </svg>
             `;
         }
 
-        // USER ACTIONS
+        // SIMULADOR POR DIAS
+        function simulateDays(days) {
+            if (days === '' || days < 0) {
+                delete userData.simulatedDays;
+                delete userData.simulatedStage;
+            } else {
+                const parsedDays = parseInt(days);
+                userData.simulatedDays = parsedDays;
+                userData.simulatedStage = Math.min(26, Math.max(1, Math.floor(parsedDays / 3.5) + 1));
+            }
+            renderDashboard();
+        }
+
+        // SIMULADOR POR SLIDER
+        function simulateStage(val) {
+            const stage = parseInt(val);
+            userData.simulatedStage = stage;
+            userData.simulatedDays = Math.round((stage - 1) * 3.5);
+            document.getElementById('daysInput').value = userData.simulatedDays;
+            renderDashboard();
+        }
+
         function registerHaircut() {
-            if (confirm("Confirmar que você cortou o cabelo hoje? O seu avatar voltará para a Fase 01!")) {
+            if (confirm("Confirmar corte hoje? O avatar voltará para a Fase 01!")) {
                 userData.lastCutDate = new Date().getTime();
                 delete userData.simulatedStage;
+                delete userData.simulatedDays;
+                document.getElementById('daysInput').value = '';
                 saveUserData();
                 renderDashboard();
             }
         }
 
-        function simulateStage(val) {
-            userData.simulatedStage = parseInt(val);
-            renderDashboard();
-        }
-
         function resetAccount() {
-            if (confirm("Deseja alterar seu nome, cor de pele ou estilo de cabelo?")) {
+            if (confirm("Editar informações do perfil?")) {
                 document.getElementById('creationSection').classList.remove('hidden');
                 document.getElementById('dashboardSection').classList.add('hidden');
                 document.getElementById('mainHeader').classList.add('hidden');
