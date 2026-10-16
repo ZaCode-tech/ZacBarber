@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Época Imóveis - Planta Interativa 3D (Modo Tela Limpa)</title>
+    <title>Nova Época Imóveis - Tour 3D & Planta Técnica Interativa</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -40,16 +40,16 @@
         
         /* Smooth Panel Collapsing Animations */
         .panel-transition {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* Glassmorphism UI style */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.82);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.55);
         }
 
         /* Zen Mode (Clean Screen) Transitions */
@@ -113,7 +113,7 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="font-bold text-sm sm:text-base text-white tracking-tight leading-none">NOVA ÉPOCA IMÓVEIS</h1>
-                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Planta 3D</span>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Layout Fiel Planta</span>
                     </div>
                     <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
                         <i class="fa-solid fa-location-dot text-red-400 text-[10px]"></i> Rua José Bonifácio, nº 605
@@ -133,10 +133,10 @@
                 </button>
             </div>
 
-            <!-- Action Toolbar (Lighting, Fullscreen, Zen Mode, Collapse Header) -->
+            <!-- Action Toolbar -->
             <div class="flex items-center gap-1.5">
                 <!-- TELA LIMPA / ZEN MODE BUTTON -->
-                <button onclick="toggleZenMode(true)" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ocultar toda interface para visualização 100% limpa">
+                <button onclick="toggleZenMode(true)" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ocultar interface para visualização limpa">
                     <i class="fa-solid fa-eye-slash text-xs"></i>
                     <span class="hidden md:inline">Tela Limpa</span>
                 </button>
@@ -157,76 +157,66 @@
             </div>
         </header>
 
-        <!-- MINIMIZED HEADER FLOATING PILL (Hidden by default) -->
+        <!-- MINIMIZED HEADER FLOATING PILL -->
         <div id="header-pill" class="pointer-events-auto fixed top-4 left-4 z-20 hidden">
             <button onclick="toggleHeaderMinimize()" class="glass-panel px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 border border-slate-700 hover:bg-slate-800 transition shadow-2xl">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>Nova Época Imóveis</span>
+                <span>Nova Época Imóveis (605)</span>
                 <i class="fa-solid fa-chevron-down text-slate-400 text-[10px]"></i>
             </button>
         </div>
 
         <!-- ONSCREEN INSTRUCTION TOAST (Appears in 1st Person) -->
         <div id="instructions-bar" class="fixed top-20 left-1/2 -translate-x-1/2 pointer-events-none glass-panel px-5 py-2 rounded-full border border-blue-500/30 text-xs text-slate-200 flex items-center gap-3 shadow-xl transition-all duration-300 opacity-0">
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-blue-400"></i> Arraste para girar a câmera em 360°</span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-blue-400"></i> Arraste para olhar 360°</span>
             <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
-            <span class="flex items-center gap-1.5"><i class="fa-solid fa-street-view text-emerald-400"></i> Clique nos anéis no chão para andar</span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-street-view text-emerald-400"></i> Clique nas mesas/anéis para caminhar</span>
         </div>
 
         <!-- BOTTOM WIDGETS ROW: Ambientes Sidebar + Mini-Mapa -->
         <div class="flex flex-col md:flex-row justify-between items-end gap-3 w-full pointer-events-none">
             
-            <!-- WIDGET 1: ROOMS / AMBIENTES DA EMPRESA -->
+            <!-- WIDGET 1: ROOMS / SETORES DA EMPRESA -->
             <div id="rooms-widget" class="pointer-events-auto panel-transition glass-panel rounded-2xl p-3 sm:p-4 w-full max-w-xs flex flex-col shadow-2xl">
                 
-                <!-- Widget Header with Minimize Toggle -->
                 <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-compass text-blue-400 text-xs"></i>
-                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Ambientes</h3>
-                        <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-semibold">8 Setores</span>
+                        <i class="fa-solid fa-layer-group text-blue-400 text-xs"></i>
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Setores & Mesas</h3>
                     </div>
-                    <button onclick="toggleWidgetMinimize('rooms')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar Ambientes">
+                    <button onclick="toggleWidgetMinimize('rooms')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar">
                         <i id="rooms-min-icon" class="fa-solid fa-minus text-xs"></i>
                     </button>
                 </div>
 
-                <!-- Widget Content Body -->
                 <div id="rooms-widget-content" class="space-y-1.5 max-h-52 sm:max-h-60 overflow-y-auto pr-1 transition-all">
                     <!-- Dynamic Room Buttons Injected via JS -->
                 </div>
 
-                <!-- Minimized Tab Preview (Shown when collapsed) -->
                 <button id="rooms-min-pill" onclick="toggleWidgetMinimize('rooms')" class="hidden w-full text-center py-1 text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-list-ul"></i> Expandir Lista de Ambientes
+                    <i class="fa-solid fa-list-ul"></i> Expandir Lista de Setores
                 </button>
             </div>
 
-            <!-- WIDGET 2: INTERACTIVE MINI-MAP 2D -->
+            <!-- WIDGET 2: INTERACTIVE MINI-MAP 2D WITH ALL DESKS -->
             <div id="minimap-widget" class="pointer-events-auto panel-transition glass-panel rounded-2xl p-3 flex flex-col items-center shadow-2xl">
                 
-                <!-- Mini-map Header with Minimize Toggle -->
                 <div class="flex items-center justify-between w-full pb-2 mb-2 border-b border-slate-800">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-map text-emerald-400 text-xs"></i>
-                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Mini-Mapa 2D</span>
+                        <i class="fa-solid fa-map-location-dot text-emerald-400 text-xs"></i>
+                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Planta 2D em Tempo Real</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-[9px] text-slate-500 hidden sm:inline">Toque p/ Teleportar</span>
-                        <button onclick="toggleWidgetMinimize('minimap')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar Mini-Mapa">
-                            <i id="minimap-min-icon" class="fa-solid fa-minus text-xs"></i>
-                        </button>
-                    </div>
+                    <button onclick="toggleWidgetMinimize('minimap')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar Mini-Mapa">
+                        <i id="minimap-min-icon" class="fa-solid fa-minus text-xs"></i>
+                    </button>
                 </div>
 
-                <!-- Mini-map Content Body -->
                 <div id="minimap-widget-content" class="relative rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950 transition-all">
-                    <canvas id="minimap-canvas" width="220" height="130" class="cursor-crosshair block"></canvas>
+                    <canvas id="minimap-canvas" width="260" height="135" class="cursor-crosshair block"></canvas>
                 </div>
 
-                <!-- Minimized Tab Preview -->
                 <button id="minimap-min-pill" onclick="toggleWidgetMinimize('minimap')" class="hidden w-full text-center py-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-2">
-                    <i class="fa-solid fa-map-location-dot"></i> Restauração de Mapa
+                    <i class="fa-solid fa-map"></i> Mostrar Mini-Mapa 2D
                 </button>
             </div>
 
@@ -243,8 +233,8 @@
                         <i id="modal-icon" class="fa-solid fa-door-open"></i>
                     </div>
                     <div>
-                        <h3 id="modal-title" class="font-bold text-base sm:text-lg text-white">Nome do Ambiente</h3>
-                        <p id="modal-subtitle" class="text-xs text-slate-400">Nova Época Imóveis - Rua José Bonifácio, 605</p>
+                        <h3 id="modal-title" class="font-bold text-base sm:text-lg text-white">Nome do Setor</h3>
+                        <p id="modal-subtitle" class="text-xs text-slate-400">Nova Época Imóveis - Planta Executiva</p>
                     </div>
                 </div>
                 <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
@@ -253,16 +243,16 @@
             </div>
             
             <p id="modal-description" class="text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed">
-                Descrição das instalações...
+                Descrição detalhada das estações de trabalho e mobiliário...
             </p>
 
             <div class="grid grid-cols-2 gap-3 mb-5">
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Área Construída</span>
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Área Técnica</span>
                     <span id="modal-area" class="text-sm font-bold text-blue-400">-- m²</span>
                 </div>
                 <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Capacidade</span>
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Estações / Capacidade</span>
                     <span id="modal-capacity" class="text-sm font-bold text-emerald-400">-- Pessoas</span>
                 </div>
             </div>
@@ -280,94 +270,117 @@
 
     <!-- MAIN LOGIC SCRIPT -->
     <script>
-        // --- 1. ARCHITECTURAL DATA DEFINITIONS (Nova Época Imóveis - Rua José Bonifácio 605) ---
+        // --- 1. ARCHITECTURAL & FURNITURE DATA DEFINITIONS ---
+        // Exactly matching the blueprint: Nova Época Imóveis (Rua José Bonifácio, nº 605)
         const ROOMS = [
             {
                 id: 'recepcao',
-                name: 'Recepção / Entradas',
+                name: 'Recepção (19.00 m²)',
                 icon: 'fa-id-card',
-                pos: { x: -12.8, y: 1.6, z: 1.0 },
-                orbitTarget: { x: -12.8, y: 0, z: 1.0 },
+                pos: { x: -13.2, y: 1.65, z: 0.5 },
+                orbitTarget: { x: -13.2, y: 0, z: 0.5 },
                 area: '19.00 m²',
-                capacity: 'Recepção + Espera',
-                desc: 'Recepção social principal na entrada da loja com acesso direto pela Fachada com portas de vidro, balcão executivo e sala de espera.',
+                capacity: 'Balcão + Espera',
+                desc: 'Recepção principal de entrada com balcão curvo atendeu, computador, telefone, e lounge de espera com sofá e poltronas.',
                 color: '#3b82f6'
             },
             {
+                id: 'ilha_superior_1',
+                name: 'Ilha Sup. 1 (10 Corr. + 1 Ger.)',
+                icon: 'fa-desktop',
+                pos: { x: -6.8, y: 1.65, z: -2.0 },
+                orbitTarget: { x: -6.8, y: 0, z: -2.8 },
+                area: 'Salão Sup. A',
+                capacity: '10 Corretores + 1 Gerente',
+                desc: 'Bancada dupla contendo 10 estações completas de trabalho (5x2) com computadores e cadeiras ergonômicas + Mesa de Gerência na cabeceira.',
+                color: '#10b981'
+            },
+            {
+                id: 'ilha_superior_2',
+                name: 'Ilha Sup. 2 (10 Corr. + 1 Ger.)',
+                icon: 'fa-sitemap',
+                pos: { x: 2.2, y: 1.65, z: -2.0 },
+                orbitTarget: { x: 2.2, y: 0, z: -2.8 },
+                area: 'Salão Sup. B',
+                capacity: '10 Corretores + 1 Gerente',
+                desc: 'Segunda bancada dupla no salão de vendas contendo 10 estações individuais de corretores + 1 Mesa de Gerente na extremidade.',
+                color: '#06b6d4'
+            },
+            {
                 id: 'atendimento',
-                name: 'Sala de Atendimento',
+                name: 'Sala de Atendimento (4.80 m²)',
                 icon: 'fa-user-tie',
-                pos: { x: -8.8, y: 1.6, z: 2.8 },
-                orbitTarget: { x: -8.8, y: 0, z: 2.8 },
+                pos: { x: -9.2, y: 1.65, z: 2.8 },
+                orbitTarget: { x: -9.2, y: 0, z: 2.8 },
                 area: '4.80 m²',
-                capacity: '2 a 4 Pessoas',
-                desc: 'Sala de atendimento reservada com fechamento de vidro/drywall para primeiro atendimento e análise documental.',
+                capacity: '1 Atendente + 3 Clientes',
+                desc: 'Sala de atendimento reservada com divisória de vidro, mesa retangular com computador e 4 cadeiras.',
                 color: '#8b5cf6'
             },
             {
                 id: 'escritura',
-                name: 'Sala de Escritura',
+                name: 'Sala de Escritura (4.80 m²)',
                 icon: 'fa-file-signature',
-                pos: { x: -5.8, y: 1.6, z: 2.8 },
+                pos: { x: -5.8, y: 1.65, z: 2.8 },
                 orbitTarget: { x: -5.8, y: 0, z: 2.8 },
                 area: '4.80 m²',
-                capacity: '2 a 4 Pessoas',
-                desc: 'Espaço privativo para outorga de assinaturas, leitura de escrituras públicas e certidões imobiliárias.',
+                capacity: '1 Oficial + 3 Clientes',
+                desc: 'Espaço privativo para outorga e assinatura de escrituras públicas, equipado com mesa executiva e 4 cadeiras.',
                 color: '#ec4899'
             },
             {
                 id: 'reuniao',
-                name: 'Sala de Reunião',
+                name: 'Sala de Reunião (9.60 m²)',
                 icon: 'fa-handshake',
-                pos: { x: -2.0, y: 1.6, z: 2.8 },
-                orbitTarget: { x: -2.0, y: 0, z: 2.8 },
-                area: '9.50 m²',
-                capacity: '6 a 8 Pessoas',
-                desc: 'Sala de reuniões executiva equipada com mesa expansiva para fechamento de propostas e rodadas de negociação.',
+                pos: { x: -1.0, y: 1.65, z: 2.8 },
+                orbitTarget: { x: -1.0, y: 0, z: 2.8 },
+                area: '9.60 m²',
+                capacity: '10 Pessoas',
+                desc: 'Sala de reuniões executiva com grande mesa de conferência para 10 lugares, tela de apresentação e suporte audiovisual.',
                 color: '#f43f5e'
             },
             {
-                id: 'salao_vendas',
-                name: 'Salão de Vendas',
-                icon: 'fa-users-gear',
-                pos: { x: 1.5, y: 1.6, z: -1.2 },
-                orbitTarget: { x: 1.5, y: 0, z: -1.2 },
-                area: '80.00 m²',
-                capacity: '18 Corretores + 2 Gerentes',
-                desc: 'Amplo salão central integrado contendo 2 grandes ilhas duplas de trabalho para equipes de corretores e gerência de vendas.',
-                color: '#10b981'
-            },
-            {
-                id: 'cpd_banh_cliente',
-                name: 'CPD / Banh. Cliente',
-                icon: 'fa-server',
-                pos: { x: 3.2, y: 1.6, z: 2.8 },
-                orbitTarget: { x: 3.2, y: 0, z: 2.8 },
-                area: '2.00 m² + CPD',
-                capacity: 'Restrito / Clientes',
-                desc: 'Área com sanitário individual para clientes e sala técnica para CPD / Servidores e telecomunicações.',
-                color: '#64748b'
-            },
-            {
-                id: 'copa',
-                name: 'Copa / Descanso',
-                icon: 'fa-mug-hot',
-                pos: { x: 9.0, y: 1.6, z: -2.2 },
-                orbitTarget: { x: 9.0, y: 0, z: -2.2 },
-                area: '8.35 m²',
-                capacity: '6 Pessoas',
-                desc: 'Copa funcional para corretores e colaboradores com bancadas, pia, cafeteiras e espaço de convivência.',
+                id: 'ilha_inferior',
+                name: 'Ilha Inf. (08 Corr. + 1 Ger.)',
+                icon: 'fa-headset',
+                pos: { x: 6.5, y: 1.65, z: 1.8 },
+                orbitTarget: { x: 6.5, y: 0, z: 2.8 },
+                area: 'Salão Inf.',
+                capacity: '8 Corretores + 1 Gerente',
+                desc: 'Ilha de vendas inferior com 8 estações duplas para corretores + 1 Mesa de Gerente dedicada.',
                 color: '#f59e0b'
             },
             {
-                id: 'banheiros_fundo',
-                name: 'Sanitários PNE / DML',
+                id: 'copa',
+                name: 'Copa (8.35 m²)',
+                icon: 'fa-mug-hot',
+                pos: { x: 9.2, y: 1.65, z: -2.8 },
+                orbitTarget: { x: 9.2, y: 0, z: -2.8 },
+                area: '8.35 m²',
+                capacity: '4 a 6 Colaboradores',
+                desc: 'Copa com bancada de granito, pia, armários superiores e mesa redonda de refeição com 4 banquetas.',
+                color: '#eab308'
+            },
+            {
+                id: 'cpd',
+                name: 'CPD (Servidores)',
+                icon: 'fa-server',
+                pos: { x: 3.5, y: 1.65, z: 3.8 },
+                orbitTarget: { x: 3.5, y: 0, z: 3.8 },
+                area: 'CPD / TI',
+                capacity: 'Servidores + Suporte',
+                desc: 'Rack de servidores central de rede, telecomunicações e estação de suporte de TI.',
+                color: '#64748b'
+            },
+            {
+                id: 'sanitarios',
+                name: 'Sanitários & DML',
                 icon: 'fa-restroom',
-                pos: { x: 13.5, y: 1.6, z: 0.5 },
-                orbitTarget: { x: 13.5, y: 0, z: 0.5 },
+                pos: { x: 13.8, y: 1.65, z: 0.0 },
+                orbitTarget: { x: 13.8, y: 0, z: 0.0 },
                 area: '7.00 m²',
-                capacity: 'Acessível (PCD)',
-                desc: 'Sanitários privativos femininos, masculinos com adaptação PNE (acessibilidade) e depósito de material de limpeza (DML).',
+                capacity: 'Acessível PNE',
+                desc: 'Instalações sanitárias masculinas, femininas com acessibilidade PNE e depósito de material de limpeza (DML).',
                 color: '#06b6d4'
             }
         ];
@@ -399,10 +412,15 @@
         let cameraYaw = -Math.PI / 2;
         let cameraPitch = 0;
 
+        // Shared Procedural Materials
+        let deskMat, darkDeskMat, chairMat, pcMat, screenMat, wallMat, drywallMat, glassMat, woodFloorMat, tileFloorMat, metallicMat;
+
         // --- 3. INIT ENGINE ---
         window.addEventListener('load', () => {
             init3D();
+            initMaterials();
             buildArchitecture();
+            buildExactFurniture();
             buildHotspots();
             setupUI();
             setupMiniMap();
@@ -413,40 +431,36 @@
         function init3D() {
             container = document.getElementById('webgl-container');
 
-            // Scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x0b1120);
-            scene.fog = new THREE.FogExp2(0x0b1120, 0.015);
+            scene.fog = new THREE.FogExp2(0x0b1120, 0.012);
 
-            // Camera
-            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 19, 17);
+            camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 21, 18);
 
-            // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             renderer.shadowMap.enabled = true;
             renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.0;
+            renderer.toneMappingExposure = 1.05;
             container.appendChild(renderer.domElement);
 
-            // Orbit Controls (Dollhouse Mode)
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 - 0.04;
+            controls.maxPolarAngle = Math.PI / 2 - 0.03;
             controls.minDistance = 3;
-            controls.maxDistance = 36;
+            controls.maxDistance = 38;
             controls.target.set(0, 0, 0);
 
             // Lighting setup
-            hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.75);
+            hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.8);
             scene.add(hemiLight);
 
-            dirLight = new THREE.DirectionalLight(0xfffaed, 1.25);
-            dirLight.position.set(-15, 22, 12);
+            dirLight = new THREE.DirectionalLight(0xfffaed, 1.3);
+            dirLight.position.set(-15, 24, 12);
             dirLight.castShadow = true;
             dirLight.shadow.mapSize.width = 2048;
             dirLight.shadow.mapSize.height = 2048;
@@ -459,45 +473,48 @@
             dirLight.shadow.camera.bottom = -d;
             scene.add(dirLight);
 
-            // Pointer Events
             window.addEventListener('resize', onWindowResize);
             renderer.domElement.addEventListener('pointerdown', onPointerDown);
             renderer.domElement.addEventListener('pointermove', onPointerMove);
             renderer.domElement.addEventListener('pointerup', onPointerUp);
         }
 
-        // --- 4. PROCEDURAL ARCHITECTURE BUILDER (BLUEPRINT MATCH) ---
-        function buildArchitecture() {
-            // Materials
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.3, metalness: 0.1 });
-            const woodFloorMat = new THREE.MeshStandardMaterial({ color: 0xb8860b, roughness: 0.5 });
-            const wallMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.8 });
-            const drywallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
-            const glassMat = new THREE.MeshPhysicalMaterial({
+        function initMaterials() {
+            tileFloorMat = new THREE.MeshStandardMaterial({ color: 0xd1d5db, roughness: 0.25, metalness: 0.05 });
+            woodFloorMat = new THREE.MeshStandardMaterial({ color: 0xaa7733, roughness: 0.45 });
+            wallMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.85 });
+            drywallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
+            glassMat = new THREE.MeshPhysicalMaterial({
                 color: 0x38bdf8,
                 transparent: true,
-                opacity: 0.3,
+                opacity: 0.28,
                 roughness: 0.1,
-                transmission: 0.9,
-                ior: 1.5
+                transmission: 0.88,
+                ior: 1.48
             });
-            const deskMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
-            const chairMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
+            deskMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 });
+            darkDeskMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.3 });
+            chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+            pcMat = new THREE.MeshStandardMaterial({ color: 0x020617, roughness: 0.2 });
+            screenMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+            metallicMat = new THREE.MeshStandardMaterial({ color: 0x64748b, metalness: 0.8, roughness: 0.2 });
+        }
 
-            // Main Slab Footprint (~ 32m x 10m)
+        // --- 4. ARCHITECTURE STRUCTURE BUILDER ---
+        function buildArchitecture() {
+            // Main Floor Slab (~ 32m x 10.5m)
             const mainFloorGeo = new THREE.BoxGeometry(32, 0.2, 10.5);
-            const mainFloor = new THREE.Mesh(mainFloorGeo, floorMat);
+            const mainFloor = new THREE.Mesh(mainFloorGeo, tileFloorMat);
             mainFloor.position.set(0, -0.1, 0);
             mainFloor.receiveShadow = true;
             scene.add(mainFloor);
 
-            // Wood Floor accent in Private Offices
-            const roomFloor = new THREE.Mesh(new THREE.BoxGeometry(12, 0.21, 4.2), woodFloorMat);
-            roomFloor.position.set(-5.5, -0.09, 2.8);
+            // Wood Floor in Private Offices
+            const roomFloor = new THREE.Mesh(new THREE.BoxGeometry(11.8, 0.21, 4.3), woodFloorMat);
+            roomFloor.position.set(-5.1, -0.09, 2.8);
             roomFloor.receiveShadow = true;
             scene.add(roomFloor);
 
-            // Wall Helper
             function createWall(x, z, w, d, h = 2.8, mat = wallMat) {
                 const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
                 mesh.position.set(x, h / 2, z);
@@ -513,79 +530,255 @@
             createWall(-16, 0, 0.3, 10.5);   // Left wall
             createWall(16, 0, 0.3, 10.5);    // Right wall
 
-            // Internal Office Dividers (Matching Blueprint "drywall" & "vidro")
-            // Glass Front Dividers for Atendimento, Escritura & Reunião
-            createWall(-5.5, 0.7, 12, 0.1, 2.8, glassMat);
-
-            // Vertical Dividers
-            createWall(-11.5, 2.8, 0.15, 4.5, 2.8, drywallMat); // Recepção / Atendimento divider
-            createWall(-7.2, 2.8, 0.1, 4.2, 2.8, glassMat);    // Atendimento / Escritura divider
-            createWall(-4.2, 2.8, 0.1, 4.2, 2.8, drywallMat);  // Escritura / Reunião divider
-            createWall(0.2, 2.8, 0.15, 4.5, 2.8, drywallMat);   // Reunião / CPD divider
-            createWall(5.0, 2.8, 0.15, 4.5, 2.8, drywallMat);   // CPD & Banh Cliente / Salão divider
+            // Internal Office Dividers (Glass & Drywall)
+            createWall(-5.1, 0.65, 11.8, 0.08, 2.8, glassMat); // Glass wall facing hall
+            createWall(-11.0, 2.8, 0.12, 4.4, 2.8, drywallMat); // Recepção / Atendimento
+            createWall(-7.5, 2.8, 0.08, 4.2, 2.8, glassMat);   // Atendimento / Escritura
+            createWall(-3.8, 2.8, 0.12, 4.2, 2.8, drywallMat);  // Escritura / Reunião
+            createWall(1.1, 2.8, 0.12, 4.4, 2.8, drywallMat);   // Reunião / Banh. Cliente
+            createWall(2.3, 2.8, 0.12, 4.4, 2.8, drywallMat);   // Banh. Cliente / CPD
+            createWall(4.6, 2.8, 0.12, 4.4, 2.8, drywallMat);   // CPD / Salão Vendas
 
             // Copa & Back Bathrooms Dividers
-            createWall(7.5, -3.0, 0.15, 4.5, 2.8, drywallMat); // Salão / Copa
-            createWall(12.0, -1.0, 0.15, 8.0, 2.8, drywallMat); // Salão / Sanitários Fundo
+            createWall(7.2, -3.0, 0.12, 4.5, 2.8, drywallMat); // Salão / Copa
+            createWall(11.8, 0.0, 0.12, 10.2, 2.8, drywallMat); // Salão / Sanitários Fundo
 
-            // --- FURNITURE BUILDER ---
-            function createWorkstationGroup(x, z, rows = 5, cols = 2) {
-                const group = new THREE.Group();
-                for (let r = 0; r < rows; r++) {
-                    for (let c = 0; c < cols; c++) {
-                        const px = (r - rows / 2 + 0.5) * 1.5;
-                        const pz = (c - cols / 2 + 0.5) * 1.2;
-
-                        // Desk
-                        const desk = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.08, 0.75), deskMat);
-                        desk.position.set(px, 0.75, pz);
-                        desk.castShadow = true;
-                        group.add(desk);
-
-                        // Monitor
-                        const mon = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.28, 0.04), new THREE.MeshStandardMaterial({ color: 0x020617 }));
-                        mon.position.set(px, 0.98, pz + (c === 0 ? -0.2 : 0.2));
-                        group.add(mon);
-
-                        // Chair
-                        const chair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.45), chairMat);
-                        chair.position.set(px, 0.45, pz + (c === 0 ? 0.5 : -0.5));
-                        group.add(chair);
-                    }
-                }
-                group.position.set(x, 0, z);
-                scene.add(group);
-            }
-
-            // Salão de Vendas Desk Blocks (10 Corretores + 8 Corretores)
-            createWorkstationGroup(-2.0, -2.2, 5, 2); // Block A
-            createWorkstationGroup(4.5, -2.2, 4, 2);  // Block B
-
-            // Reunião Big Table
-            const confTable = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 1.2), deskMat);
-            confTable.position.set(-2.0, 0.75, 2.8);
-            scene.add(confTable);
-
-            // Recepção Desk
-            const recepDesk = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 0.8), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
-            recepDesk.position.set(-13.5, 0.5, 1.0);
-            scene.add(recepDesk);
-
-            // Copa Counter & Stools
-            const copaCounter = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.9, 0.7), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-            copaCounter.position.set(9.0, 0.45, -4.2);
-            scene.add(copaCounter);
-
-            // Ceiling Spotlights per room
+            // Point Lights in each sector
             ROOMS.forEach(r => {
-                const light = new THREE.PointLight(0xfff8ed, 0.65, 11);
-                light.position.set(r.pos.x, 2.6, r.pos.z);
+                const light = new THREE.PointLight(0xfff8ed, 0.65, 10);
+                light.position.set(r.pos.x, 2.5, r.pos.z);
                 scene.add(light);
                 roomLights.push(light);
             });
         }
 
-        // --- 5. HOTSPOTS ON GROUND ---
+        // --- 5. EXACT FURNITURE BUILDER (MATCHING ALL BLUEPRINT DESKS) ---
+        function buildExactFurniture() {
+
+            // HELPER: Create 1 Standard Desk with Chair + Computer
+            function createWorkstation(x, z, rotY = 0, isManager = false) {
+                const group = new THREE.Group();
+
+                // Desk Top
+                const w = isManager ? 1.4 : 1.1;
+                const d = isManager ? 0.75 : 0.6;
+                const deskMesh = new THREE.Mesh(new THREE.BoxGeometry(w, 0.06, d), isManager ? darkDeskMat : deskMat);
+                deskMesh.position.y = 0.72;
+                deskMesh.castShadow = true;
+                group.add(deskMesh);
+
+                // Desk Legs
+                const legMat = metallicMat;
+                const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.7, 0.05), legMat);
+                leg1.position.set(-w/2 + 0.05, 0.35, -d/2 + 0.05);
+                const leg2 = leg1.clone(); leg2.position.set(w/2 - 0.05, 0.35, -d/2 + 0.05);
+                const leg3 = leg1.clone(); leg3.position.set(-w/2 + 0.05, 0.35, d/2 - 0.05);
+                const leg4 = leg1.clone(); leg4.position.set(w/2 - 0.05, 0.35, d/2 - 0.05);
+                group.add(leg1, leg2, leg3, leg4);
+
+                // Computer Monitor
+                const monBase = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.02, 0.15), pcMat);
+                monBase.position.set(0, 0.76, -d/4);
+                const monStand = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.2, 0.04), pcMat);
+                monStand.position.set(0, 0.86, -d/4);
+                const monScreen = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.28, 0.03), pcMat);
+                monScreen.position.set(0, 0.98, -d/4);
+                
+                const screenDisplay = new THREE.Mesh(new THREE.PlaneGeometry(0.44, 0.24), screenMat);
+                screenDisplay.position.set(0, 0.98, -d/4 + 0.017);
+                
+                const keyboard = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.015, 0.12), pcMat);
+                keyboard.position.set(0, 0.75, 0.05);
+
+                group.add(monBase, monStand, monScreen, screenDisplay, keyboard);
+
+                // Office Chair
+                const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.06, 0.42), chairMat);
+                chairSeat.position.set(0, 0.45, d/2 + 0.25);
+                const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.45, 0.05), chairMat);
+                chairBack.position.set(0, 0.70, d/2 + 0.44);
+                const chairPole = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4), legMat);
+                chairPole.position.set(0, 0.2, d/2 + 0.25);
+
+                group.add(chairSeat, chairBack, chairPole);
+
+                group.position.set(x, 0, z);
+                group.rotation.y = rotY;
+                scene.add(group);
+            }
+
+            // HELPER: Create Workstation Island (2 parallel rows of desks + Manager Desk at head)
+            function createWorkIsland(startX, startZ, cols, managerX, managerZ, managerRotY) {
+                const spacingX = 1.25;
+                for (let c = 0; c < cols; c++) {
+                    const px = startX + c * spacingX;
+                    // Row A (Facing Down / +Z)
+                    createWorkstation(px, startZ - 0.38, 0);
+                    // Row B (Facing Up / -Z)
+                    createWorkstation(px, startZ + 0.38, Math.PI);
+                }
+                // Manager Desk at the Head
+                createWorkstation(managerX, managerZ, managerRotY, true);
+            }
+
+            // 1. ILHA SUPERIOR ESQUERDA: "10 CORRETORES 01 GERENTE" (5 cols x 2 rows + 1 Gerente)
+            createWorkIsland(-9.2, -2.8, 5, -2.2, -2.8, -Math.PI / 2);
+
+            // 2. ILHA SUPERIOR DIREITA: "10 CORRETORES 01 GERENTE" (5 cols x 2 rows + 1 Gerente)
+            createWorkIsland(-0.2, -2.8, 5, 6.8, -2.8, Math.PI / 2);
+
+            // 3. ILHA INFERIOR DIREITA: "08 CORRETORES 01 GERENTE" (4 cols x 2 rows + 1 Gerente)
+            createWorkIsland(4.2, 2.8, 4, 9.8, 2.8, Math.PI / 2);
+
+            // 4. RECEPÇÃO (19.00 m²): Balcão curvo, cadeira, PC + Lounge de Espera
+            const recepGroup = new THREE.Group();
+            const counter = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.05, 0.8), darkDeskMat);
+            counter.position.set(-13.5, 0.52, 1.0);
+            recepGroup.add(counter);
+
+            // Waiting Sofa
+            const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.35, 0.7), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+            sofaBase.position.set(-14.2, 0.18, -2.2);
+            const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.5, 0.2), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+            sofaBack.position.set(-14.2, 0.5, -2.5);
+            const coffeeTable = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.5), darkDeskMat);
+            coffeeTable.position.set(-14.2, 0.15, -1.3);
+            recepGroup.add(sofaBase, sofaBack, coffeeTable);
+            scene.add(recepGroup);
+
+            // 5. SALA DE ATENDIMENTO (4.80 m²): Mesa + PC + 4 Cadeiras
+            createConsultationOffice(-9.2, 2.8);
+
+            // 6. SALA DE ESCRITURA (4.80 m²): Mesa + PC + 4 Cadeiras
+            createConsultationOffice(-5.8, 2.8);
+
+            // 7. SALA DE REUNIÃO (9.60 m²): Mesa de Reunião para 10 Pessoas
+            createMeetingRoom(-1.0, 2.8);
+
+            // 8. COPA (8.35 m²): Balcão com pia, armário + Mesa redonda com 4 banquetas
+            createCopaArea(9.2, -3.2);
+
+            // 9. CPD: Servidor Rack + Mesa Técnica
+            createCPDArea(3.5, 3.8);
+
+            // 10. SANITÁRIOS: Louças Sanitárias
+            createRestrooms(13.8, 0.0);
+        }
+
+        function createConsultationOffice(x, z) {
+            const group = new THREE.Group();
+            // Desk
+            const desk = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.74, 0.75), darkDeskMat);
+            desk.position.set(0, 0.37, 0);
+            group.add(desk);
+
+            // PC
+            const pc = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.03), pcMat);
+            pc.position.set(0, 0.88, -0.15);
+            group.add(pc);
+
+            // Main Executive Chair
+            const mainChair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.7, 0.45), chairMat);
+            mainChair.position.set(0, 0.35, -0.65);
+            group.add(mainChair);
+
+            // 3 Client Chairs
+            const clientChair1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.4), chairMat);
+            clientChair1.position.set(-0.45, 0.3, 0.65);
+            const clientChair2 = clientChair1.clone(); clientChair2.position.set(0.45, 0.3, 0.65);
+            const clientChair3 = clientChair1.clone(); clientChair3.position.set(0, 0.3, 0.65);
+            group.add(clientChair1, clientChair2, clientChair3);
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        function createMeetingRoom(x, z) {
+            const group = new THREE.Group();
+            // Conference Table (3.2m x 1.2m)
+            const table = new THREE.Mesh(new THREE.BoxGeometry(2.8, 0.75, 1.2), darkDeskMat);
+            table.position.set(0, 0.37, 0);
+            table.castShadow = true;
+            group.add(table);
+
+            // 10 Chairs around table (4 top, 4 bottom, 1 left, 1 right)
+            for (let i = 0; i < 4; i++) {
+                const cx = -0.9 + i * 0.6;
+                const chair1 = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), chairMat);
+                chair1.position.set(cx, 0.35, -0.85);
+                const chair2 = chair1.clone();
+                chair2.position.set(cx, 0.35, 0.85);
+                group.add(chair1, chair2);
+            }
+            const chairLeft = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.7, 0.4), chairMat);
+            chairLeft.position.set(-1.6, 0.35, 0);
+            const chairRight = chairLeft.clone(); chairRight.position.set(1.6, 0.35, 0);
+            group.add(chairLeft, chairRight);
+
+            // Wall Display Screen / Projector
+            const display = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.9, 0.05), pcMat);
+            display.position.set(0, 1.8, -1.9);
+            group.add(display);
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        function createCopaArea(x, z) {
+            const group = new THREE.Group();
+            // Kitchen Counter with sink
+            const counter = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.9, 0.65), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
+            counter.position.set(0, 0.45, -1.2);
+            group.add(counter);
+
+            // Dining Table & 4 Stools
+            const table = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.75, 24), darkDeskMat);
+            table.position.set(0, 0.37, 0.5);
+            group.add(table);
+
+            for (let i = 0; i < 4; i++) {
+                const angle = (i * Math.PI) / 2;
+                const stool = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 0.48, 16), chairMat);
+                stool.position.set(Math.cos(angle) * 0.8, 0.24, 0.5 + Math.sin(angle) * 0.8);
+                group.add(stool);
+            }
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        function createCPDArea(x, z) {
+            const group = new THREE.Group();
+            // Server Rack Tower
+            const rack = new THREE.Mesh(new THREE.BoxGeometry(0.7, 2.0, 0.8), new THREE.MeshStandardMaterial({ color: 0x020617, metalness: 0.8 }));
+            rack.position.set(-0.5, 1.0, 0);
+            group.add(rack);
+
+            // Tech Desk
+            const techDesk = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.74, 0.5), deskMat);
+            techDesk.position.set(0.5, 0.37, 0);
+            group.add(techDesk);
+
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        function createRestrooms(x, z) {
+            const group = new THREE.Group();
+            const porcelainMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.1 });
+
+            // Toilet Bowl
+            const toilet = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.4, 0.55), porcelainMat);
+            toilet.position.set(0, 0.2, -1.5);
+            const sink = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.8, 0.4), porcelainMat);
+            sink.position.set(0, 0.4, 1.5);
+
+            group.add(toilet, sink);
+            group.position.set(x, 0, z);
+            scene.add(group);
+        }
+
+        // --- 6. INTERACTIVE GROUND HOTSPOTS ---
         function buildHotspots() {
             const ringGeo = new THREE.RingGeometry(0.35, 0.5, 32);
             ringGeo.rotateX(-Math.PI / 2);
@@ -603,8 +796,8 @@
                 scene.add(ringMesh);
                 hotspotMeshes.push(ringMesh);
 
-                // Vertical Light Shaft
-                const shaftGeo = new THREE.CylinderGeometry(0.02, 0.35, 1.4, 16, 1, true);
+                // Vertical Light Beam Shaft
+                const shaftGeo = new THREE.CylinderGeometry(0.02, 0.35, 1.5, 16, 1, true);
                 const shaftMat = new THREE.MeshBasicMaterial({
                     color: new THREE.Color(room.color),
                     transparent: true,
@@ -612,12 +805,12 @@
                     side: THREE.DoubleSide
                 });
                 const shaft = new THREE.Mesh(shaftGeo, shaftMat);
-                shaft.position.set(room.pos.x, 0.75, room.pos.z);
+                shaft.position.set(room.pos.x, 0.8, room.pos.z);
                 scene.add(shaft);
             });
         }
 
-        // --- 6. UI & WIDGET MANAGEMENT ---
+        // --- 7. UI & WIDGET MANAGEMENT ---
         function setupUI() {
             const container = document.getElementById('rooms-widget-content');
             container.innerHTML = '';
@@ -629,7 +822,7 @@
 
                 btn.innerHTML = `
                     <div class="flex items-center gap-2">
-                        <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white" style="background-color: ${room.color}33; color: ${room.color};">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white shrink-0" style="background-color: ${room.color}33; color: ${room.color};">
                             <i class="fa-solid ${room.icon}"></i>
                         </div>
                         <span class="text-xs font-semibold text-slate-200 group-hover:text-white truncate">${room.name}</span>
@@ -719,7 +912,7 @@
                 instructions.classList.add('opacity-0');
 
                 controls.enabled = true;
-                gsap.to(camera.position, { x: 0, y: 19, z: 17, duration: 1.4, ease: "power2.inOut", onUpdate: () => controls.update() });
+                gsap.to(camera.position, { x: 0, y: 21, z: 18, duration: 1.4, ease: "power2.inOut", onUpdate: () => controls.update() });
                 gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power2.inOut" });
             } else {
                 btnStreet.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-md";
@@ -735,8 +928,8 @@
             if (viewMode === 'dollhouse') {
                 gsap.to(camera.position, {
                     x: room.orbitTarget.x,
-                    y: 8.5,
-                    z: room.orbitTarget.z + 7,
+                    y: 9.0,
+                    z: room.orbitTarget.z + 7.5,
                     duration: 1.2,
                     ease: "power2.out",
                     onUpdate: () => controls.update()
@@ -784,7 +977,7 @@
             });
         }
 
-        // --- 7. POINTER & RAYCAST CONTROLS ---
+        // --- 8. POINTER & RAYCAST CONTROLS ---
         function onPointerDown(e) {
             if (e.target !== renderer.domElement) return;
 
@@ -820,7 +1013,7 @@
             isDragging = false;
         }
 
-        // --- 8. MINI-MAP 2D ---
+        // --- 9. INTERACTIVE 2D MINI-MAP (DRAWING ALL BLUEPRINT DESKS) ---
         let minimapCanvas, minimapCtx;
 
         function setupMiniMap() {
@@ -838,7 +1031,7 @@
                 if (viewMode === 'dollhouse') {
                     gsap.to(controls.target, { x: worldX, y: 0, z: worldZ, duration: 1 });
                 } else {
-                    gsap.to(camera.position, { x: worldX, y: 1.6, z: worldZ, duration: 1.2, onUpdate: updateCameraLookAt });
+                    gsap.to(camera.position, { x: worldX, y: 1.65, z: worldZ, duration: 1.2, onUpdate: updateCameraLookAt });
                 }
             });
         }
@@ -850,24 +1043,63 @@
 
             minimapCtx.clearRect(0, 0, w, h);
 
-            // Background
+            // Dark Map Background
             minimapCtx.fillStyle = '#020617';
             minimapCtx.fillRect(0, 0, w, h);
 
             function toMapX(x) { return (x / 33 + 0.5) * w; }
             function toMapY(z) { return (z / 11 + 0.5) * h; }
 
-            // Outer Walls
-            minimapCtx.strokeStyle = '#334155';
-            minimapCtx.lineWidth = 1.5;
+            // Outer Perimeter
+            minimapCtx.strokeStyle = '#475569';
+            minimapCtx.lineWidth = 1.8;
             minimapCtx.strokeRect(toMapX(-16), toMapY(-5.25), (32/33)*w, (10.5/11)*h);
 
-            // Internal Dividers
-            minimapCtx.strokeStyle = '#1e293b';
+            // Glass Dividers
+            minimapCtx.strokeStyle = '#38bdf8';
             minimapCtx.lineWidth = 1;
-            minimapCtx.strokeRect(toMapX(-11.5), toMapY(0.7), (11.7/33)*w, (4.5/11)*h);
+            minimapCtx.beginPath();
+            minimapCtx.moveTo(toMapX(-11.0), toMapY(0.65));
+            minimapCtx.lineTo(toMapX(0.8), toMapY(0.65));
+            minimapCtx.stroke();
 
-            // Hotspot Nodes
+            // DRAW ALL WORKSTATION DESKS ON 2D MINI-MAP!
+            minimapCtx.fillStyle = '#334155';
+            
+            // Upper-Left Island Desks (10 + 1)
+            for (let c = 0; c < 5; c++) {
+                const mx = toMapX(-9.2 + c * 1.25);
+                minimapCtx.fillRect(mx - 3, toMapY(-3.2), 6, 4);
+                minimapCtx.fillRect(mx - 3, toMapY(-2.4), 6, 4);
+            }
+            minimapCtx.fillStyle = '#64748b';
+            minimapCtx.fillRect(toMapX(-2.2) - 2, toMapY(-2.8) - 4, 4, 8); // Manager
+
+            // Upper-Right Island Desks (10 + 1)
+            minimapCtx.fillStyle = '#334155';
+            for (let c = 0; c < 5; c++) {
+                const mx = toMapX(-0.2 + c * 1.25);
+                minimapCtx.fillRect(mx - 3, toMapY(-3.2), 6, 4);
+                minimapCtx.fillRect(mx - 3, toMapY(-2.4), 6, 4);
+            }
+            minimapCtx.fillStyle = '#64748b';
+            minimapCtx.fillRect(toMapX(6.8) - 2, toMapY(-2.8) - 4, 4, 8); // Manager
+
+            // Lower-Right Island Desks (8 + 1)
+            minimapCtx.fillStyle = '#334155';
+            for (let c = 0; c < 4; c++) {
+                const mx = toMapX(4.2 + c * 1.25);
+                minimapCtx.fillRect(mx - 3, toMapY(2.4), 6, 4);
+                minimapCtx.fillRect(mx - 3, toMapY(3.2), 6, 4);
+            }
+            minimapCtx.fillStyle = '#64748b';
+            minimapCtx.fillRect(toMapX(9.8) - 2, toMapY(2.8) - 4, 4, 8); // Manager
+
+            // Meeting Room Table
+            minimapCtx.fillStyle = '#f43f5e';
+            minimapCtx.fillRect(toMapX(-1.0) - 10, toMapY(2.8) - 5, 20, 10);
+
+            // Hotspot Sector Dots
             ROOMS.forEach(room => {
                 const mx = toMapX(room.pos.x);
                 const my = toMapY(room.pos.z);
@@ -885,9 +1117,9 @@
             if (viewMode === 'streetview') {
                 minimapCtx.beginPath();
                 minimapCtx.moveTo(px, py);
-                minimapCtx.arc(px, py, 18, cameraYaw - 0.45, cameraYaw + 0.45);
+                minimapCtx.arc(px, py, 20, cameraYaw - 0.45, cameraYaw + 0.45);
                 minimapCtx.closePath();
-                minimapCtx.fillStyle = 'rgba(59, 130, 246, 0.3)';
+                minimapCtx.fillStyle = 'rgba(59, 130, 246, 0.35)';
                 minimapCtx.fill();
             }
 
@@ -900,7 +1132,7 @@
             minimapCtx.stroke();
         }
 
-        // --- 9. MODAL HELPERS ---
+        // --- 10. MODAL HELPERS ---
         function openModal(room) {
             activeModalRoom = room;
             document.getElementById('modal-title').innerText = room.name;
@@ -941,8 +1173,8 @@
             if (isDayLight) {
                 icon.className = "fa-solid fa-sun";
                 scene.background = new THREE.Color(0x0b1120);
-                dirLight.intensity = 1.25;
-                hemiLight.intensity = 0.75;
+                dirLight.intensity = 1.3;
+                hemiLight.intensity = 0.8;
                 roomLights.forEach(l => l.intensity = 0.65);
             } else {
                 icon.className = "fa-solid fa-moon text-indigo-400";
@@ -955,7 +1187,7 @@
 
         function resetCamera() {
             if (viewMode === 'dollhouse') {
-                gsap.to(camera.position, { x: 0, y: 19, z: 17, duration: 1 });
+                gsap.to(camera.position, { x: 0, y: 21, z: 18, duration: 1 });
                 gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1 });
             } else {
                 cameraYaw = -Math.PI / 2;
@@ -980,7 +1212,7 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
 
-        // --- 10. ANIMATION LOOP ---
+        // --- 11. ANIMATION LOOP ---
         function animate(time) {
             requestAnimationFrame(animate);
 
@@ -988,7 +1220,6 @@
                 controls.update();
             }
 
-            // Pulse ring hotspots
             const scale = 1 + Math.sin(time * 0.004) * 0.08;
             hotspotMeshes.forEach(m => {
                 m.scale.set(scale, scale, scale);
