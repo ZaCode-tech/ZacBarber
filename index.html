@@ -4,26 +4,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nova Época Imóveis - Tour Virtual 3D</title>
+    <title>Nova Época Imóveis - Planta Interativa 3D (Modo Tela Limpa)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- OrbitControls -->
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <!-- GSAP for Smooth Animations -->
+    <!-- GSAP for Smooth Camera Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            user-select: none;
             overflow: hidden;
-            background-color: #0f172a;
+            background-color: #0b1120;
         }
         #webgl-container {
             width: 100vw;
@@ -33,134 +37,214 @@
             left: 0;
             z-index: 1;
         }
-        .ui-element {
-            z-index: 10;
-            pointer-events: auto;
+        
+        /* Smooth Panel Collapsing Animations */
+        .panel-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .hotspot-label {
-            background: rgba(15, 23, 42, 0.85);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            transition: all 0.2s ease;
+
+        /* Glassmorphism UI style */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }
-        .hotspot-label:hover {
-            transform: scale(1.05);
-            background: rgba(37, 99, 235, 0.9);
+
+        /* Zen Mode (Clean Screen) Transitions */
+        .ui-layer {
+            transition: opacity 0.4s ease, transform 0.4s ease, filter 0.4s ease;
         }
-        /* Custom Scrollbar for room sidebar */
+        body.zen-mode .ui-layer {
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transform: scale(0.98);
+            filter: blur(4px);
+        }
+
+        /* Custom Scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.5);
+            background: rgba(15, 23, 42, 0.4);
         }
         ::-webkit-scrollbar-thumb {
             background: #334155;
-            border-radius: 3px;
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
             background: #475569;
         }
+
+        /* Pulse glow for zen restore button */
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.9); }
+        }
+        .animate-pulse-glow {
+            animation: pulse-glow 2.5s infinite;
+        }
     </style>
 </head>
-<body class="text-slate-100 antialiased">
+<body class="text-slate-100 antialiased selection:bg-blue-500 selection:text-white">
 
-    <!-- 3D WebGL Canvas Container -->
+    <!-- 3D WebGL Rendering Canvas -->
     <div id="webgl-container"></div>
 
-    <!-- UI Overlay Layer -->
-    <div class="fixed inset-0 pointer-events-none z-10 flex flex-col justify-between p-4 md:p-6">
+    <!-- ZEN RESTORE BUTTON (Appears when Zen Mode is ACTIVE) -->
+    <button id="btn-restore-zen" onclick="toggleZenMode(false)" class="fixed top-4 right-4 z-50 opacity-0 pointer-events-none transition-all duration-300 bg-blue-600/90 hover:bg-blue-500 text-white px-4 py-2.5 rounded-full font-medium text-xs flex items-center gap-2 border border-blue-400/40 shadow-2xl backdrop-blur-md animate-pulse-glow">
+        <i class="fa-solid fa-eye text-sm"></i>
+        <span>Sair da Tela Limpa (ESC)</span>
+    </button>
+
+    <!-- UI OVERLAY LAYER -->
+    <div id="ui-overlay" class="ui-layer fixed inset-0 pointer-events-none z-10 flex flex-col justify-between p-3 sm:p-5">
         
-        <!-- Header Bar -->
-        <header class="ui-element flex flex-wrap justify-between items-center bg-slate-900/80 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl gap-4">
+        <!-- HEADER TOP BAR -->
+        <header id="header-panel" class="pointer-events-auto panel-transition glass-panel rounded-2xl p-3 sm:p-4 max-w-full flex flex-wrap justify-between items-center gap-3">
+            
+            <!-- Company Info & Logo -->
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                    <i class="fa-solid font-bold text-white text-lg">N</i>
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-500/30 text-white font-black text-lg">
+                    N
                 </div>
                 <div>
-                    <h1 class="font-bold text-lg leading-tight text-white flex items-center gap-2">
-                        NOVA ÉPOCA IMÓVEIS
-                        <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Planta Interativa 3D</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 flex items-center gap-1">
-                        <i class="fa-solid fa-location-dot text-red-400"></i> Rua José Bonifácio, nº 605
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-sm sm:text-base text-white tracking-tight leading-none">NOVA ÉPOCA IMÓVEIS</h1>
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Planta 3D</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 flex items-center gap-1 mt-0.5">
+                        <i class="fa-solid fa-location-dot text-red-400 text-[10px]"></i> Rua José Bonifácio, nº 605
                     </p>
                 </div>
             </div>
 
             <!-- Main Mode Switcher & Controls -->
-            <div class="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-xl border border-slate-700">
-                <button id="btn-mode-dollhouse" onclick="switchViewMode('dollhouse')" class="px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-blue-600 text-white shadow-md">
+            <div class="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/60 shadow-inner">
+                <button id="btn-mode-dollhouse" onclick="switchViewMode('dollhouse')" class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-md">
                     <i class="fa-solid fa-cubes"></i>
                     <span class="hidden sm:inline">Maquete 3D</span>
                 </button>
-                <button id="btn-mode-streetview" onclick="switchViewMode('streetview')" class="px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2">
+                <button id="btn-mode-streetview" onclick="switchViewMode('streetview')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5">
                     <i class="fa-solid fa-street-view"></i>
                     <span class="hidden sm:inline">Passeio Imersivo</span>
                 </button>
             </div>
 
-            <!-- Environment Toggles -->
-            <div class="flex items-center gap-2">
-                <button id="btn-toggle-light" onclick="toggleLighting()" class="ui-element w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition" title="Alternar Iluminação (Dia/Noite)">
-                    <i id="light-icon" class="fa-solid fa-sun text-lg"></i>
+            <!-- Action Toolbar (Lighting, Fullscreen, Zen Mode, Collapse Header) -->
+            <div class="flex items-center gap-1.5">
+                <!-- TELA LIMPA / ZEN MODE BUTTON -->
+                <button onclick="toggleZenMode(true)" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm" title="Ocultar toda interface para visualização 100% limpa">
+                    <i class="fa-solid fa-eye-slash text-xs"></i>
+                    <span class="hidden md:inline">Tela Limpa</span>
                 </button>
-                <button onclick="resetCamera()" class="ui-element w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition" title="Resetar Câmera">
+
+                <button id="btn-toggle-light" onclick="toggleLighting()" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-amber-400 flex items-center justify-center transition" title="Alternar Dia / Noite">
+                    <i id="light-icon" class="fa-solid fa-sun"></i>
+                </button>
+                <button onclick="resetCamera()" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition" title="Resetar Câmera">
                     <i class="fa-solid fa-arrows-rotate"></i>
                 </button>
-                <button onclick="toggleFullscreen()" class="ui-element w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition" title="Tela Cheia">
+                <button onclick="toggleFullscreen()" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition" title="Tela Cheia">
                     <i class="fa-solid fa-expand"></i>
+                </button>
+                <!-- Minimize Header Button -->
+                <button onclick="toggleHeaderMinimize()" class="w-9 h-9 rounded-xl bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition ml-1" title="Minimizar Cabeçalho">
+                    <i id="header-min-icon" class="fa-solid fa-chevron-up"></i>
                 </button>
             </div>
         </header>
 
-        <!-- Sidebar / Navigation Menu (Floating Bottom / Left) -->
-        <div class="flex flex-col md:flex-row justify-between items-end gap-4 w-full pointer-events-none">
+        <!-- MINIMIZED HEADER FLOATING PILL (Hidden by default) -->
+        <div id="header-pill" class="pointer-events-auto fixed top-4 left-4 z-20 hidden">
+            <button onclick="toggleHeaderMinimize()" class="glass-panel px-4 py-2 rounded-full text-xs font-bold text-white flex items-center gap-2 border border-slate-700 hover:bg-slate-800 transition shadow-2xl">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>Nova Época Imóveis</span>
+                <i class="fa-solid fa-chevron-down text-slate-400 text-[10px]"></i>
+            </button>
+        </div>
+
+        <!-- ONSCREEN INSTRUCTION TOAST (Appears in 1st Person) -->
+        <div id="instructions-bar" class="fixed top-20 left-1/2 -translate-x-1/2 pointer-events-none glass-panel px-5 py-2 rounded-full border border-blue-500/30 text-xs text-slate-200 flex items-center gap-3 shadow-xl transition-all duration-300 opacity-0">
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-hand-pointer text-blue-400"></i> Arraste para girar a câmera em 360°</span>
+            <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
+            <span class="flex items-center gap-1.5"><i class="fa-solid fa-street-view text-emerald-400"></i> Clique nos anéis no chão para andar</span>
+        </div>
+
+        <!-- BOTTOM WIDGETS ROW: Ambientes Sidebar + Mini-Mapa -->
+        <div class="flex flex-col md:flex-row justify-between items-end gap-3 w-full pointer-events-none">
             
-            <!-- Quick Navigation Menu -->
-            <div class="ui-element bg-slate-900/85 backdrop-blur-md p-4 rounded-2xl border border-slate-700/50 shadow-2xl w-full max-w-xs max-h-72 flex flex-col">
-                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-compass text-blue-400"></i> Ambientes da Empresa
-                </h3>
-                <div class="space-y-1.5 overflow-y-auto pr-1" id="rooms-list">
-                    <!-- Room buttons will be injected dynamically -->
+            <!-- WIDGET 1: ROOMS / AMBIENTES DA EMPRESA -->
+            <div id="rooms-widget" class="pointer-events-auto panel-transition glass-panel rounded-2xl p-3 sm:p-4 w-full max-w-xs flex flex-col shadow-2xl">
+                
+                <!-- Widget Header with Minimize Toggle -->
+                <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-compass text-blue-400 text-xs"></i>
+                        <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Ambientes</h3>
+                        <span class="text-[10px] bg-slate-800 px-1.5 py-0.5 rounded text-slate-400 font-semibold">8 Setores</span>
+                    </div>
+                    <button onclick="toggleWidgetMinimize('rooms')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar Ambientes">
+                        <i id="rooms-min-icon" class="fa-solid fa-minus text-xs"></i>
+                    </button>
                 </div>
+
+                <!-- Widget Content Body -->
+                <div id="rooms-widget-content" class="space-y-1.5 max-h-52 sm:max-h-60 overflow-y-auto pr-1 transition-all">
+                    <!-- Dynamic Room Buttons Injected via JS -->
+                </div>
+
+                <!-- Minimized Tab Preview (Shown when collapsed) -->
+                <button id="rooms-min-pill" onclick="toggleWidgetMinimize('rooms')" class="hidden w-full text-center py-1 text-xs font-semibold text-blue-400 hover:text-blue-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-list-ul"></i> Expandir Lista de Ambientes
+                </button>
             </div>
 
-            <!-- Mini-Map Overlay -->
-            <div class="ui-element bg-slate-900/90 backdrop-blur-md p-3 rounded-2xl border border-slate-700/60 shadow-2xl flex flex-col items-center">
-                <div class="flex justify-between items-center w-full mb-2 px-1">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                        <i class="fa-solid fa-map text-emerald-400"></i> Mini-Mapa 2D
-                    </span>
-                    <span class="text-[10px] text-slate-500">Clique para teleportar</span>
+            <!-- WIDGET 2: INTERACTIVE MINI-MAP 2D -->
+            <div id="minimap-widget" class="pointer-events-auto panel-transition glass-panel rounded-2xl p-3 flex flex-col items-center shadow-2xl">
+                
+                <!-- Mini-map Header with Minimize Toggle -->
+                <div class="flex items-center justify-between w-full pb-2 mb-2 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-map text-emerald-400 text-xs"></i>
+                        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Mini-Mapa 2D</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[9px] text-slate-500 hidden sm:inline">Toque p/ Teleportar</span>
+                        <button onclick="toggleWidgetMinimize('minimap')" class="w-6 h-6 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition" title="Minimizar Mini-Mapa">
+                            <i id="minimap-min-icon" class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="relative rounded-lg overflow-hidden border border-slate-800 bg-slate-950">
-                    <canvas id="minimap-canvas" width="220" height="140" class="cursor-crosshair"></canvas>
+
+                <!-- Mini-map Content Body -->
+                <div id="minimap-widget-content" class="relative rounded-xl overflow-hidden border border-slate-800/80 bg-slate-950 transition-all">
+                    <canvas id="minimap-canvas" width="220" height="130" class="cursor-crosshair block"></canvas>
                 </div>
+
+                <!-- Minimized Tab Preview -->
+                <button id="minimap-min-pill" onclick="toggleWidgetMinimize('minimap')" class="hidden w-full text-center py-1 text-xs font-semibold text-emerald-400 hover:text-emerald-300 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-map-location-dot"></i> Restauração de Mapa
+                </button>
             </div>
+
         </div>
 
     </div>
 
-    <!-- Onscreen Instructions Bar (Appears in First-Person) -->
-    <div id="instructions-bar" class="fixed top-24 left-1/2 -translate-x-1/2 ui-element bg-slate-900/90 backdrop-blur-md px-6 py-2.5 rounded-full border border-blue-500/30 text-xs text-slate-200 flex items-center gap-4 shadow-xl transition-all duration-300 opacity-0 pointer-events-none">
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-mouse text-blue-400"></i> Arraste o mouse/touch para olhar em 360°</span>
-        <span class="w-1 h-1 bg-slate-600 rounded-full"></span>
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-bullseye text-blue-400"></i> Clique nos anéis no chão para andar</span>
-    </div>
-
-    <!-- Room Info Modal -->
-    <div id="info-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-md w-full shadow-2xl transform scale-95 transition-all duration-300" id="modal-content">
+    <!-- ROOM DETAILS MODAL -->
+    <div id="info-modal" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-panel border border-slate-700/80 rounded-2xl p-6 max-w-md w-full shadow-2xl transform scale-95 transition-all duration-300" id="modal-content">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex items-center gap-3">
-                    <div id="modal-icon-bg" class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
+                    <div id="modal-icon-bg" class="w-11 h-11 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30 text-lg">
                         <i id="modal-icon" class="fa-solid fa-door-open"></i>
                     </div>
                     <div>
-                        <h3 id="modal-title" class="font-bold text-lg text-white">Nome do Ambiente</h3>
-                        <p id="modal-subtitle" class="text-xs text-slate-400">Nova Época Imóveis</p>
+                        <h3 id="modal-title" class="font-bold text-base sm:text-lg text-white">Nome do Ambiente</h3>
+                        <p id="modal-subtitle" class="text-xs text-slate-400">Nova Época Imóveis - Rua José Bonifácio, 605</p>
                     </div>
                 </div>
                 <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">
@@ -168,140 +252,161 @@
                 </button>
             </div>
             
-            <p id="modal-description" class="text-sm text-slate-300 mb-4 leading-relaxed">
-                Descrição detalhada do setor...
+            <p id="modal-description" class="text-xs sm:text-sm text-slate-300 mb-4 leading-relaxed">
+                Descrição das instalações...
             </p>
 
-            <div class="grid grid-cols-2 gap-3 mb-6">
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <span class="text-[10px] text-slate-400 uppercase block font-semibold">Área Estimada</span>
+            <div class="grid grid-cols-2 gap-3 mb-5">
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Área Construída</span>
                     <span id="modal-area" class="text-sm font-bold text-blue-400">-- m²</span>
                 </div>
-                <div class="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <span class="text-[10px] text-slate-400 uppercase block font-semibold">Capacidade / Postos</span>
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+                    <span class="text-[10px] text-slate-400 uppercase font-semibold block">Capacidade</span>
                     <span id="modal-capacity" class="text-sm font-bold text-emerald-400">-- Pessoas</span>
                 </div>
             </div>
 
-            <button onclick="teleportToRoomFromModal()" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-street-view text-sm"></i> Visitar em 1ª Pessoa
-            </button>
+            <div class="flex gap-2">
+                <button onclick="teleportToRoomFromModal()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs rounded-xl shadow-lg shadow-blue-600/30 transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-street-view"></i> Visitar em 1ª Pessoa
+                </button>
+                <button onclick="closeModal()" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-xl transition">
+                    Fechar
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- MAIN JAVASCRIPT LOGIC -->
+    <!-- MAIN LOGIC SCRIPT -->
     <script>
-        // --- 1. DATA CONFIGURATION & ROOM DEFINITIONS ---
-        // Coordinates based on the architectural layout of Nova Época Imóveis (Rua José Bonifácio 605)
+        // --- 1. ARCHITECTURAL DATA DEFINITIONS (Nova Época Imóveis - Rua José Bonifácio 605) ---
         const ROOMS = [
             {
                 id: 'recepcao',
-                name: 'Recepção / Hall',
+                name: 'Recepção / Entradas',
                 icon: 'fa-id-card',
-                pos: { x: -12.5, y: 1.6, z: 0 },
-                orbitTarget: { x: -12.5, y: 0, z: 0 },
-                area: '18.5 m²',
-                capacity: '2 Atendentes + Espera',
-                desc: 'Recepção social da agência com balcão executivo, poltronas de espera e design acolhedor para clientes.',
+                pos: { x: -12.8, y: 1.6, z: 1.0 },
+                orbitTarget: { x: -12.8, y: 0, z: 1.0 },
+                area: '19.00 m²',
+                capacity: 'Recepção + Espera',
+                desc: 'Recepção social principal na entrada da loja com acesso direto pela Fachada com portas de vidro, balcão executivo e sala de espera.',
                 color: '#3b82f6'
             },
             {
-                id: 'atendimento1',
-                name: 'Sala Atendimento 1',
-                icon: 'fa-briefcase',
-                pos: { x: -8.0, y: 1.6, z: -2.8 },
-                orbitTarget: { x: -8.0, y: 0, z: -2.8 },
-                area: '9.2 m²',
-                capacity: '4 Pessoas',
-                desc: 'Sala privativa para reuniões com clientes, assinaturas de contratos e fechamento de negócios.',
+                id: 'atendimento',
+                name: 'Sala de Atendimento',
+                icon: 'fa-user-tie',
+                pos: { x: -8.8, y: 1.6, z: 2.8 },
+                orbitTarget: { x: -8.8, y: 0, z: 2.8 },
+                area: '4.80 m²',
+                capacity: '2 a 4 Pessoas',
+                desc: 'Sala de atendimento reservada com fechamento de vidro/drywall para primeiro atendimento e análise documental.',
                 color: '#8b5cf6'
             },
             {
-                id: 'atendimento2',
-                name: 'Sala Atendimento 2',
-                icon: 'fa-handshake',
-                pos: { x: -4.0, y: 1.6, z: -2.8 },
-                orbitTarget: { x: -4.0, y: 0, z: -2.8 },
-                area: '9.8 m²',
-                capacity: '4 Pessoas',
-                desc: 'Ambiente climatizado e isolado acusticamente para reuniões executivas e consultoria imobiliária.',
+                id: 'escritura',
+                name: 'Sala de Escritura',
+                icon: 'fa-file-signature',
+                pos: { x: -5.8, y: 1.6, z: 2.8 },
+                orbitTarget: { x: -5.8, y: 0, z: 2.8 },
+                area: '4.80 m²',
+                capacity: '2 a 4 Pessoas',
+                desc: 'Espaço privativo para outorga de assinaturas, leitura de escrituras públicas e certidões imobiliárias.',
                 color: '#ec4899'
             },
             {
-                id: 'corretores_central',
-                name: 'Ilha de Corretores',
+                id: 'reuniao',
+                name: 'Sala de Reunião',
+                icon: 'fa-handshake',
+                pos: { x: -2.0, y: 1.6, z: 2.8 },
+                orbitTarget: { x: -2.0, y: 0, z: 2.8 },
+                area: '9.50 m²',
+                capacity: '6 a 8 Pessoas',
+                desc: 'Sala de reuniões executiva equipada com mesa expansiva para fechamento de propostas e rodadas de negociação.',
+                color: '#f43f5e'
+            },
+            {
+                id: 'salao_vendas',
+                name: 'Salão de Vendas',
                 icon: 'fa-users-gear',
-                pos: { x: 0.0, y: 1.6, z: 0.8 },
-                orbitTarget: { x: 0.0, y: 0, z: 0.8 },
-                area: '54.0 m²',
-                capacity: '16 Corretores + Gerente',
-                desc: 'Área central ampla com ilhas de trabalho duplas para equipes de vendas e consultores de imoveis.',
+                pos: { x: 1.5, y: 1.6, z: -1.2 },
+                orbitTarget: { x: 1.5, y: 0, z: -1.2 },
+                area: '80.00 m²',
+                capacity: '18 Corretores + 2 Gerentes',
+                desc: 'Amplo salão central integrado contendo 2 grandes ilhas duplas de trabalho para equipes de corretores e gerência de vendas.',
                 color: '#10b981'
             },
             {
-                id: 'copa',
-                name: 'Copa / Convivência',
-                icon: 'fa-mug-hot',
-                pos: { x: 7.5, y: 1.6, z: -2.2 },
-                orbitTarget: { x: 7.5, y: 0, z: -2.2 },
-                area: '12.4 m²',
-                capacity: '6 Pessoas',
-                desc: 'Espaço de descompressão e refeições equipado com bancadas em granito, cafeteira e armários.',
-                color: '#f59e0b'
-            },
-            {
-                id: 'cpd',
-                name: 'CPD / Depósito',
+                id: 'cpd_banh_cliente',
+                name: 'CPD / Banh. Cliente',
                 icon: 'fa-server',
-                pos: { x: 6.0, y: 1.6, z: 2.5 },
-                orbitTarget: { x: 6.0, y: 0, z: 2.5 },
-                area: '6.5 m²',
-                capacity: 'Restrito',
-                desc: 'Central de processamento de dados, servidores de rede, automação da agência e arquivo morto.',
+                pos: { x: 3.2, y: 1.6, z: 2.8 },
+                orbitTarget: { x: 3.2, y: 0, z: 2.8 },
+                area: '2.00 m² + CPD',
+                capacity: 'Restrito / Clientes',
+                desc: 'Área com sanitário individual para clientes e sala técnica para CPD / Servidores e telecomunicações.',
                 color: '#64748b'
             },
             {
-                id: 'sanitarios',
-                name: 'Sanitários / PCD',
+                id: 'copa',
+                name: 'Copa / Descanso',
+                icon: 'fa-mug-hot',
+                pos: { x: 9.0, y: 1.6, z: -2.2 },
+                orbitTarget: { x: 9.0, y: 0, z: -2.2 },
+                area: '8.35 m²',
+                capacity: '6 Pessoas',
+                desc: 'Copa funcional para corretores e colaboradores com bancadas, pia, cafeteiras e espaço de convivência.',
+                color: '#f59e0b'
+            },
+            {
+                id: 'banheiros_fundo',
+                name: 'Sanitários PNE / DML',
                 icon: 'fa-restroom',
-                pos: { x: 12.0, y: 1.6, z: 0.5 },
-                orbitTarget: { x: 12.0, y: 0, z: 0.5 },
-                area: '11.0 m²',
-                capacity: 'Sanitários M/F/PCD',
-                desc: 'Instalações sanitárias completas com acessibilidade total (PCD) e área de serviço DML.',
+                pos: { x: 13.5, y: 1.6, z: 0.5 },
+                orbitTarget: { x: 13.5, y: 0, z: 0.5 },
+                area: '7.00 m²',
+                capacity: 'Acessível (PCD)',
+                desc: 'Sanitários privativos femininos, masculinos com adaptação PNE (acessibilidade) e depósito de material de limpeza (DML).',
                 color: '#06b6d4'
             }
         ];
 
-        // --- 2. GLOBAL SYSTEM VARIABLES ---
+        // --- 2. GLOBAL SYSTEM STATE ---
         let container, scene, camera, renderer, controls;
         let isDayLight = true;
         let viewMode = 'dollhouse'; // 'dollhouse' | 'streetview'
-        let currentHotspot = null;
         let activeModalRoom = null;
+        let isZenMode = false;
 
-        // Lighting Objects
+        // UI Panel Minimized States
+        let isRoomsMinimized = false;
+        let isMinimapMinimized = false;
+        let isHeaderMinimized = false;
+
+        // Lights
         let dirLight, hemiLight;
         let roomLights = [];
 
-        // Interactive Objects Raycasting
+        // Raycasting
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2();
         let hotspotMeshes = [];
 
-        // First Person Controls state
+        // 1st Person Controls State
         let isDragging = false;
         let previousMousePosition = { x: 0, y: 0 };
         let cameraYaw = -Math.PI / 2;
         let cameraPitch = 0;
 
-        // --- 3. INITIALIZATION ---
+        // --- 3. INIT ENGINE ---
         window.addEventListener('load', () => {
             init3D();
             buildArchitecture();
             buildHotspots();
             setupUI();
             setupMiniMap();
+            setupKeyEvents();
             animate();
         });
 
@@ -310,12 +415,12 @@
 
             // Scene
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0f172a);
-            scene.fog = new THREE.FogExp2(0x0f172a, 0.018);
+            scene.background = new THREE.Color(0x0b1120);
+            scene.fog = new THREE.FogExp2(0x0b1120, 0.015);
 
             // Camera
-            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 100);
-            camera.position.set(0, 18, 16);
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 19, 17);
 
             // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, powerPreference: "high-performance" });
@@ -327,74 +432,74 @@
             renderer.toneMappingExposure = 1.0;
             container.appendChild(renderer.domElement);
 
-            // Orbit Controls (For Dollhouse View)
+            // Orbit Controls (Dollhouse Mode)
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.maxPolarAngle = Math.PI / 2 - 0.05; // Don't go below ground
+            controls.maxPolarAngle = Math.PI / 2 - 0.04;
             controls.minDistance = 3;
-            controls.maxDistance = 35;
+            controls.maxDistance = 36;
             controls.target.set(0, 0, 0);
 
-            // Lights
-            hemiLight = new THREE.HemisphereLight(0xffffff, 0x334155, 0.7);
+            // Lighting setup
+            hemiLight = new THREE.HemisphereLight(0xffffff, 0x1e293b, 0.75);
             scene.add(hemiLight);
 
-            dirLight = new THREE.DirectionalLight(0xfffaed, 1.2);
-            dirLight.position.set(-15, 20, 10);
+            dirLight = new THREE.DirectionalLight(0xfffaed, 1.25);
+            dirLight.position.set(-15, 22, 12);
             dirLight.castShadow = true;
             dirLight.shadow.mapSize.width = 2048;
             dirLight.shadow.mapSize.height = 2048;
             dirLight.shadow.camera.near = 0.5;
             dirLight.shadow.camera.far = 50;
-            const d = 20;
+            const d = 22;
             dirLight.shadow.camera.left = -d;
             dirLight.shadow.camera.right = d;
             dirLight.shadow.camera.top = d;
             dirLight.shadow.camera.bottom = -d;
             scene.add(dirLight);
 
-            // Event Listeners
+            // Pointer Events
             window.addEventListener('resize', onWindowResize);
             renderer.domElement.addEventListener('pointerdown', onPointerDown);
             renderer.domElement.addEventListener('pointermove', onPointerMove);
             renderer.domElement.addEventListener('pointerup', onPointerUp);
         }
 
-        // --- 4. PROCEDURAL ARCHITECTURE BUILDER ---
+        // --- 4. PROCEDURAL ARCHITECTURE BUILDER (BLUEPRINT MATCH) ---
         function buildArchitecture() {
-            // Floor Materials
-            const mainFloorMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, roughness: 0.3, metalness: 0.1 });
-            const officeFloorMat = new THREE.MeshStandardMaterial({ color: 0xcb9b51, roughness: 0.6, metalness: 0.0 }); // Wood vinyl
-            const wallMat = new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.8 });
+            // Materials
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.3, metalness: 0.1 });
+            const woodFloorMat = new THREE.MeshStandardMaterial({ color: 0xb8860b, roughness: 0.5 });
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.8 });
+            const drywallMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.7 });
             const glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff,
+                color: 0x38bdf8,
                 transparent: true,
-                opacity: 0.35,
+                opacity: 0.3,
                 roughness: 0.1,
                 transmission: 0.9,
                 ior: 1.5
             });
-            const deskMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.4 });
-            const chairMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.7 });
+            const deskMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.4 });
+            const chairMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.6 });
 
-            // Main Building Ground Box (Outer footprint ~ 30m x 10m)
-            const floorGeo = new THREE.BoxGeometry(31, 0.2, 10);
-            const floorMesh = new THREE.Mesh(floorGeo, mainFloorMat);
-            floorMesh.position.set(0, -0.1, 0);
-            floorMesh.receiveShadow = true;
-            scene.add(floorMesh);
+            // Main Slab Footprint (~ 32m x 10m)
+            const mainFloorGeo = new THREE.BoxGeometry(32, 0.2, 10.5);
+            const mainFloor = new THREE.Mesh(mainFloorGeo, floorMat);
+            mainFloor.position.set(0, -0.1, 0);
+            mainFloor.receiveShadow = true;
+            scene.add(mainFloor);
 
-            // Inner office wooden carpet floor sections
-            const roomFloor1 = new THREE.Mesh(new THREE.BoxGeometry(10, 0.21, 3.8), officeFloorMat);
-            roomFloor1.position.set(-6, -0.09, -2.8);
-            roomFloor1.receiveShadow = true;
-            scene.add(roomFloor1);
+            // Wood Floor accent in Private Offices
+            const roomFloor = new THREE.Mesh(new THREE.BoxGeometry(12, 0.21, 4.2), woodFloorMat);
+            roomFloor.position.set(-5.5, -0.09, 2.8);
+            roomFloor.receiveShadow = true;
+            scene.add(roomFloor);
 
-            // WALL HELPER FUNCTION
-            function createWall(x, z, w, d, h = 2.8, material = wallMat) {
-                const geo = new THREE.BoxGeometry(w, h, d);
-                const mesh = new THREE.Mesh(geo, material);
+            // Wall Helper
+            function createWall(x, z, w, d, h = 2.8, mat = wallMat) {
+                const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
                 mesh.position.set(x, h / 2, z);
                 mesh.castShadow = true;
                 mesh.receiveShadow = true;
@@ -402,136 +507,95 @@
                 return mesh;
             }
 
-            // Outer Walls
-            createWall(0, -5, 31, 0.3);  // Back outer wall
-            createWall(0, 5, 31, 0.3);   // Front outer wall
-            createWall(-15.5, 0, 0.3, 10); // Left outer wall
-            createWall(15.5, 0, 0.3, 10);  // Right outer wall
+            // Outer Perimeter Walls
+            createWall(0, -5.25, 32, 0.3);   // Back wall
+            createWall(0, 5.25, 32, 0.3);    // Front wall
+            createWall(-16, 0, 0.3, 10.5);   // Left wall
+            createWall(16, 0, 0.3, 10.5);    // Right wall
 
-            // Internal Dividers & Office Glass Walls
-            // Glass wall for Private Offices (Salas de Atendimento)
-            createWall(-6, -0.9, 10, 0.1, 2.8, glassMat); // Glass front divider
-            createWall(-11, -2.9, 0.1, 4, 2.8, wallMat);  // Reception divider
-            createWall(-6, -2.9, 0.1, 4, 2.8, glassMat);  // Divider between Room 1 & Room 2
-            createWall(-1, -2.9, 0.1, 4, 2.8, wallMat);   // End of meeting rooms
+            // Internal Office Dividers (Matching Blueprint "drywall" & "vidro")
+            // Glass Front Dividers for Atendimento, Escritura & Reunião
+            createWall(-5.5, 0.7, 12, 0.1, 2.8, glassMat);
 
-            // Copa & CPD Dividers
-            createWall(5, -2.9, 0.1, 4, 2.8, wallMat);
-            createWall(10, -2.9, 0.1, 4, 2.8, wallMat);
-            createWall(5, 2.5, 0.1, 4.8, 2.8, wallMat);   // CPD wall
-            createWall(9, 2.5, 0.1, 4.8, 2.8, wallMat);   // Bathrooms wall
+            // Vertical Dividers
+            createWall(-11.5, 2.8, 0.15, 4.5, 2.8, drywallMat); // Recepção / Atendimento divider
+            createWall(-7.2, 2.8, 0.1, 4.2, 2.8, glassMat);    // Atendimento / Escritura divider
+            createWall(-4.2, 2.8, 0.1, 4.2, 2.8, drywallMat);  // Escritura / Reunião divider
+            createWall(0.2, 2.8, 0.15, 4.5, 2.8, drywallMat);   // Reunião / CPD divider
+            createWall(5.0, 2.8, 0.15, 4.5, 2.8, drywallMat);   // CPD & Banh Cliente / Salão divider
 
-            // --- FURNITURE PROCEDURAL CREATION ---
+            // Copa & Back Bathrooms Dividers
+            createWall(7.5, -3.0, 0.15, 4.5, 2.8, drywallMat); // Salão / Copa
+            createWall(12.0, -1.0, 0.15, 8.0, 2.8, drywallMat); // Salão / Sanitários Fundo
 
-            // Helper: Desk & Chair Set
-            function createWorkstation(x, z, rotation = 0) {
+            // --- FURNITURE BUILDER ---
+            function createWorkstationGroup(x, z, rows = 5, cols = 2) {
                 const group = new THREE.Group();
-                
-                // Desk Table
-                const tableTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.8), deskMat);
-                tableTop.position.y = 0.75;
-                tableTop.castShadow = true;
-                group.add(tableTop);
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const px = (r - rows / 2 + 0.5) * 1.5;
+                        const pz = (c - cols / 2 + 0.5) * 1.2;
 
-                // Legs
-                const legGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.72);
-                const legMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, metalness: 0.8 });
-                [[-0.6, -0.3], [0.6, -0.3], [-0.6, 0.3], [0.6, 0.3]].forEach(p => {
-                    const leg = new THREE.Mesh(legGeo, legMat);
-                    leg.position.set(p[0], 0.36, p[1]);
-                    group.add(leg);
-                });
+                        // Desk
+                        const desk = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.08, 0.75), deskMat);
+                        desk.position.set(px, 0.75, pz);
+                        desk.castShadow = true;
+                        group.add(desk);
 
-                // Computer Monitor
-                const screen = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 0.03), new THREE.MeshStandardMaterial({ color: 0x020617 }));
-                screen.position.set(0, 1.0, -0.2);
-                group.add(screen);
+                        // Monitor
+                        const mon = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.28, 0.04), new THREE.MeshStandardMaterial({ color: 0x020617 }));
+                        mon.position.set(px, 0.98, pz + (c === 0 ? -0.2 : 0.2));
+                        group.add(mon);
 
-                // Chair
-                const seat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.08, 0.5), chairMat);
-                seat.position.set(0, 0.45, 0.5);
-                group.add(seat);
-
-                const backrest = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.5, 0.06), chairMat);
-                backrest.position.set(0, 0.75, 0.72);
-                group.add(backrest);
-
+                        // Chair
+                        const chair = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.08, 0.45), chairMat);
+                        chair.position.set(px, 0.45, pz + (c === 0 ? 0.5 : -0.5));
+                        group.add(chair);
+                    }
+                }
                 group.position.set(x, 0, z);
-                group.rotation.y = rotation;
                 scene.add(group);
             }
 
-            // 1. RECEPÇÃO FURNITURE
-            const recepDesk = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.1, 0.9), new THREE.MeshStandardMaterial({ color: 0x1e293b }));
-            recepDesk.position.set(-13, 0.55, -1);
-            recepDesk.castShadow = true;
+            // Salão de Vendas Desk Blocks (10 Corretores + 8 Corretores)
+            createWorkstationGroup(-2.0, -2.2, 5, 2); // Block A
+            createWorkstationGroup(4.5, -2.2, 4, 2);  // Block B
+
+            // Reunião Big Table
+            const confTable = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.1, 1.2), deskMat);
+            confTable.position.set(-2.0, 0.75, 2.8);
+            scene.add(confTable);
+
+            // Recepção Desk
+            const recepDesk = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.0, 0.8), new THREE.MeshStandardMaterial({ color: 0x0f172a }));
+            recepDesk.position.set(-13.5, 0.5, 1.0);
             scene.add(recepDesk);
 
-            // Waiting Lounge Sofa
-            const sofa = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.5, 0.8), new THREE.MeshStandardMaterial({ color: 0x2563eb }));
-            sofa.position.set(-13, 0.25, 2.5);
-            sofa.castShadow = true;
-            scene.add(sofa);
+            // Copa Counter & Stools
+            const copaCounter = new THREE.Mesh(new THREE.BoxGeometry(3.0, 0.9, 0.7), new THREE.MeshStandardMaterial({ color: 0x334155 }));
+            copaCounter.position.set(9.0, 0.45, -4.2);
+            scene.add(copaCounter);
 
-            // Decorative Plant
-            const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.2, 0.6), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-            pot.position.set(-14.5, 0.3, -4);
-            const plant = new THREE.Mesh(new THREE.DodecahedronGeometry(0.45, 1), new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.9 }));
-            plant.position.set(-14.5, 0.8, -4);
-            scene.add(pot);
-            scene.add(plant);
-
-            // 2. PRIVATE OFFICES (SALAS DE ATENDIMENTO)
-            // Meeting Table Office 1
-            createWorkstation(-8.5, -3.2, 0);
-            createWorkstation(-7.5, -3.2, Math.PI);
-
-            // Meeting Table Office 2
-            createWorkstation(-4.5, -3.2, 0);
-            createWorkstation(-3.5, -3.2, Math.PI);
-
-            // 3. MAIN BROKER HALL (ILHA DOS CORRETORES)
-            // Rows of Workstations (Double Islands)
-            const xPositions = [-2.5, 0.5, 3.5];
-            xPositions.forEach(x => {
-                createWorkstation(x, 0.0, 0);
-                createWorkstation(x, 1.6, Math.PI);
-                createWorkstation(x, 3.0, 0);
-            });
-
-            // 4. COPA (KITCHEN/LOUNGE)
-            const counter = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.9, 0.8), new THREE.MeshStandardMaterial({ color: 0x334155 }));
-            counter.position.set(7.5, 0.45, -4.2);
-            scene.add(counter);
-
-            // High Stools
-            for(let i = 0; i < 3; i++) {
-                const stool = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 0.65), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
-                stool.position.set(6.5 + i * 1.0, 0.325, -3.2);
-                scene.add(stool);
-            }
-
-            // 5. ROOM SPOTLIGHTS / CEILING LIGHTS
+            // Ceiling Spotlights per room
             ROOMS.forEach(r => {
-                const pLight = new THREE.PointLight(0xfffbeb, 0.6, 12);
-                pLight.position.set(r.pos.x, 2.6, r.pos.z);
-                scene.add(pLight);
-                roomLights.push(pLight);
+                const light = new THREE.PointLight(0xfff8ed, 0.65, 11);
+                light.position.set(r.pos.x, 2.6, r.pos.z);
+                scene.add(light);
+                roomLights.push(light);
             });
         }
 
-        // --- 5. INTERACTIVE GROUND HOTSPOTS ---
+        // --- 5. HOTSPOTS ON GROUND ---
         function buildHotspots() {
             const ringGeo = new THREE.RingGeometry(0.35, 0.5, 32);
             ringGeo.rotateX(-Math.PI / 2);
 
             ROOMS.forEach(room => {
-                // Ring Graphic
                 const ringMat = new THREE.MeshBasicMaterial({
                     color: new THREE.Color(room.color),
                     side: THREE.DoubleSide,
                     transparent: true,
-                    opacity: 0.8
+                    opacity: 0.85
                 });
                 const ringMesh = new THREE.Mesh(ringGeo, ringMat);
                 ringMesh.position.set(room.pos.x, 0.05, room.pos.z);
@@ -539,69 +603,130 @@
                 scene.add(ringMesh);
                 hotspotMeshes.push(ringMesh);
 
-                // Beacon Vertical Beam
-                const beamGeo = new THREE.CylinderGeometry(0.02, 0.35, 1.5, 16, 1, true);
-                const beamMat = new THREE.MeshBasicMaterial({
+                // Vertical Light Shaft
+                const shaftGeo = new THREE.CylinderGeometry(0.02, 0.35, 1.4, 16, 1, true);
+                const shaftMat = new THREE.MeshBasicMaterial({
                     color: new THREE.Color(room.color),
                     transparent: true,
-                    opacity: 0.3,
+                    opacity: 0.25,
                     side: THREE.DoubleSide
                 });
-                const beamMesh = new THREE.Mesh(beamGeo, beamMat);
-                beamMesh.position.set(room.pos.x, 0.8, room.pos.z);
-                scene.add(beamMesh);
+                const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+                shaft.position.set(room.pos.x, 0.75, room.pos.z);
+                scene.add(shaft);
             });
         }
 
-        // --- 6. USER INTERFACE & NAVIGATION LOGIC ---
+        // --- 6. UI & WIDGET MANAGEMENT ---
         function setupUI() {
-            const roomsContainer = document.getElementById('rooms-list');
-            roomsContainer.innerHTML = '';
+            const container = document.getElementById('rooms-widget-content');
+            container.innerHTML = '';
 
             ROOMS.forEach(room => {
                 const btn = document.createElement('button');
-                btn.className = `w-full text-left p-2.5 rounded-xl border border-slate-800 bg-slate-800/40 hover:bg-slate-800 hover:border-slate-700 transition flex items-center justify-between group`;
+                btn.className = `w-full text-left p-2 rounded-xl border border-slate-800 bg-slate-900/60 hover:bg-slate-800 hover:border-slate-700 transition flex items-center justify-between group`;
                 btn.onclick = () => focusRoom(room);
 
                 btn.innerHTML = `
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs text-white" style="background-color: ${room.color}33; color: ${room.color};">
+                    <div class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] text-white" style="background-color: ${room.color}33; color: ${room.color};">
                             <i class="fa-solid ${room.icon}"></i>
                         </div>
-                        <span class="text-xs font-medium text-slate-200 group-hover:text-white">${room.name}</span>
+                        <span class="text-xs font-semibold text-slate-200 group-hover:text-white truncate">${room.name}</span>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500 group-hover:text-slate-300"></i>
+                    <i class="fa-solid fa-chevron-right text-[9px] text-slate-500 group-hover:text-slate-300"></i>
                 `;
-                roomsContainer.appendChild(btn);
+                container.appendChild(btn);
             });
+        }
+
+        // TOGGLE CLEAN SCREEN / ZEN MODE
+        function toggleZenMode(enable) {
+            isZenMode = enable;
+            const body = document.body;
+            const zenBtn = document.getElementById('btn-restore-zen');
+
+            if (isZenMode) {
+                body.classList.add('zen-mode');
+                zenBtn.classList.remove('opacity-0', 'pointer-events-none');
+                zenBtn.classList.add('opacity-100', 'pointer-events-auto');
+            } else {
+                body.classList.remove('zen-mode');
+                zenBtn.classList.add('opacity-0', 'pointer-events-none');
+                zenBtn.classList.remove('opacity-100', 'pointer-events-auto');
+            }
+        }
+
+        // TOGGLE HEADER MINIMIZE
+        function toggleHeaderMinimize() {
+            isHeaderMinimized = !isHeaderMinimized;
+            const headerPanel = document.getElementById('header-panel');
+            const headerPill = document.getElementById('header-pill');
+
+            if (isHeaderMinimized) {
+                headerPanel.classList.add('hidden');
+                headerPill.classList.remove('hidden');
+            } else {
+                headerPanel.classList.remove('hidden');
+                headerPill.classList.add('hidden');
+            }
+        }
+
+        // TOGGLE SIDE WIDGETS MINIMIZE (Rooms / Mini-map)
+        function toggleWidgetMinimize(type) {
+            if (type === 'rooms') {
+                isRoomsMinimized = !isRoomsMinimized;
+                const content = document.getElementById('rooms-widget-content');
+                const pill = document.getElementById('rooms-min-pill');
+                const icon = document.getElementById('rooms-min-icon');
+
+                if (isRoomsMinimized) {
+                    content.classList.add('hidden');
+                    pill.classList.remove('hidden');
+                    icon.className = "fa-solid fa-plus text-xs";
+                } else {
+                    content.classList.remove('hidden');
+                    pill.classList.add('hidden');
+                    icon.className = "fa-solid fa-minus text-xs";
+                }
+            } else if (type === 'minimap') {
+                isMinimapMinimized = !isMinimapMinimized;
+                const content = document.getElementById('minimap-widget-content');
+                const pill = document.getElementById('minimap-min-pill');
+                const icon = document.getElementById('minimap-min-icon');
+
+                if (isMinimapMinimized) {
+                    content.classList.add('hidden');
+                    pill.classList.remove('hidden');
+                    icon.className = "fa-solid fa-plus text-xs";
+                } else {
+                    content.classList.remove('hidden');
+                    pill.classList.add('hidden');
+                    icon.className = "fa-solid fa-minus text-xs";
+                }
+            }
         }
 
         function switchViewMode(mode) {
             viewMode = mode;
-            const btnDollhouse = document.getElementById('btn-mode-dollhouse');
-            const btnStreetview = document.getElementById('btn-mode-streetview');
+            const btnDoll = document.getElementById('btn-mode-dollhouse');
+            const btnStreet = document.getElementById('btn-mode-streetview');
             const instructions = document.getElementById('instructions-bar');
 
             if (mode === 'dollhouse') {
-                btnDollhouse.className = "px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-blue-600 text-white shadow-md";
-                btnStreetview.className = "px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2";
+                btnDoll.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-md";
+                btnStreet.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5";
                 instructions.classList.add('opacity-0');
 
                 controls.enabled = true;
-                gsap.to(camera.position, {
-                    x: 0, y: 18, z: 16,
-                    duration: 1.5,
-                    ease: "power2.inOut",
-                    onUpdate: () => controls.update()
-                });
-                gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.5, ease: "power2.inOut" });
+                gsap.to(camera.position, { x: 0, y: 19, z: 17, duration: 1.4, ease: "power2.inOut", onUpdate: () => controls.update() });
+                gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1.4, ease: "power2.inOut" });
             } else {
-                btnStreetview.className = "px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 bg-blue-600 text-white shadow-md";
-                btnDollhouse.className = "px-4 py-2 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all flex items-center gap-2";
+                btnStreet.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 bg-blue-600 text-white shadow-md";
+                btnDoll.className = "px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 transition-all flex items-center gap-1.5";
                 instructions.classList.remove('opacity-0');
 
                 controls.enabled = false;
-                // Go to default starting room (Recepção)
                 teleportToRoom(ROOMS[0]);
             }
         }
@@ -610,8 +735,8 @@
             if (viewMode === 'dollhouse') {
                 gsap.to(camera.position, {
                     x: room.orbitTarget.x,
-                    y: 9,
-                    z: room.orbitTarget.z + 8,
+                    y: 8.5,
+                    z: room.orbitTarget.z + 7,
                     duration: 1.2,
                     ease: "power2.out",
                     onUpdate: () => controls.update()
@@ -630,13 +755,10 @@
         }
 
         function teleportToRoom(room) {
-            currentHotspot = room;
-            const targetPos = room.pos;
-
             gsap.to(camera.position, {
-                x: targetPos.x,
-                y: targetPos.y,
-                z: targetPos.z,
+                x: room.pos.x,
+                y: room.pos.y,
+                z: room.pos.z,
                 duration: 1.2,
                 ease: "power2.inOut",
                 onUpdate: updateCameraLookAt
@@ -652,14 +774,23 @@
             }
         }
 
-        // --- 7. POINTER & LOOK CONTROLS FOR STREET VIEW ---
+        // KEYBOARD SHORTCUTS
+        function setupKeyEvents() {
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (isZenMode) toggleZenMode(false);
+                    closeModal();
+                }
+            });
+        }
+
+        // --- 7. POINTER & RAYCAST CONTROLS ---
         function onPointerDown(e) {
             if (e.target !== renderer.domElement) return;
 
             isDragging = true;
             previousMousePosition = { x: e.clientX, y: e.clientY };
 
-            // Check Raycast for Hotspots
             mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             raycaster.setFromCamera(mouse, camera);
@@ -679,8 +810,6 @@
 
             cameraYaw += deltaX * 0.003;
             cameraPitch -= deltaY * 0.003;
-
-            // Clamp vertical rotation (pitch)
             cameraPitch = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, cameraPitch));
 
             updateCameraLookAt();
@@ -691,7 +820,7 @@
             isDragging = false;
         }
 
-        // --- 8. MINI-MAP RENDERING ---
+        // --- 8. MINI-MAP 2D ---
         let minimapCanvas, minimapCtx;
 
         function setupMiniMap() {
@@ -703,12 +832,9 @@
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
 
-                // Map 2D pixel coordinates back to 3D world space
-                // Canvas: W=220, H=140. World range: X [-16, 16], Z [-5, 5]
-                const worldX = ((clickX / minimapCanvas.width) - 0.5) * 32;
+                const worldX = ((clickX / minimapCanvas.width) - 0.5) * 33;
                 const worldZ = ((clickY / minimapCanvas.height) - 0.5) * 11;
 
-                // Move camera smoothly
                 if (viewMode === 'dollhouse') {
                     gsap.to(controls.target, { x: worldX, y: 0, z: worldZ, duration: 1 });
                 } else {
@@ -728,58 +854,53 @@
             minimapCtx.fillStyle = '#020617';
             minimapCtx.fillRect(0, 0, w, h);
 
-            // Helper to transform world 3D coords to mini-map 2D coords
-            function toMapX(x) { return (x / 32 + 0.5) * w; }
+            function toMapX(x) { return (x / 33 + 0.5) * w; }
             function toMapY(z) { return (z / 11 + 0.5) * h; }
 
-            // Outer Walls Blueprint
+            // Outer Walls
             minimapCtx.strokeStyle = '#334155';
-            minimapCtx.lineWidth = 2;
-            minimapCtx.strokeRect(toMapX(-15.5), toMapY(-5), (31/32)*w, (10/11)*h);
+            minimapCtx.lineWidth = 1.5;
+            minimapCtx.strokeRect(toMapX(-16), toMapY(-5.25), (32/33)*w, (10.5/11)*h);
 
-            // Internal Office Dividers
+            // Internal Dividers
             minimapCtx.strokeStyle = '#1e293b';
             minimapCtx.lineWidth = 1;
+            minimapCtx.strokeRect(toMapX(-11.5), toMapY(0.7), (11.7/33)*w, (4.5/11)*h);
 
-            // Salas Atendimento
-            minimapCtx.strokeRect(toMapX(-11), toMapY(-4.8), (10/32)*w, (3.8/11)*h);
-
-            // Draw Hotspot Nodes on MiniMap
+            // Hotspot Nodes
             ROOMS.forEach(room => {
                 const mx = toMapX(room.pos.x);
                 const my = toMapY(room.pos.z);
 
                 minimapCtx.beginPath();
-                minimapCtx.arc(mx, my, 4, 0, Math.PI * 2);
+                minimapCtx.arc(mx, my, 3.5, 0, Math.PI * 2);
                 minimapCtx.fillStyle = room.color;
                 minimapCtx.fill();
             });
 
-            // Player / Camera Position & Vision Cone
+            // Camera Position & Vision Cone
             const px = toMapX(camera.position.x);
             const py = toMapY(camera.position.z);
 
-            // Vision Cone (In First-Person)
             if (viewMode === 'streetview') {
                 minimapCtx.beginPath();
                 minimapCtx.moveTo(px, py);
-                minimapCtx.arc(px, py, 20, cameraYaw - 0.4, cameraYaw + 0.4);
+                minimapCtx.arc(px, py, 18, cameraYaw - 0.45, cameraYaw + 0.45);
                 minimapCtx.closePath();
-                minimapCtx.fillStyle = 'rgba(59, 130, 246, 0.25)';
+                minimapCtx.fillStyle = 'rgba(59, 130, 246, 0.3)';
                 minimapCtx.fill();
             }
 
-            // Player Dot
             minimapCtx.beginPath();
-            minimapCtx.arc(px, py, 5, 0, Math.PI * 2);
+            minimapCtx.arc(px, py, 4.5, 0, Math.PI * 2);
             minimapCtx.fillStyle = '#38bdf8';
             minimapCtx.fill();
             minimapCtx.strokeStyle = '#ffffff';
-            minimapCtx.lineWidth = 1.5;
+            minimapCtx.lineWidth = 1.2;
             minimapCtx.stroke();
         }
 
-        // --- 9. MODAL INFORMATION & UTILS ---
+        // --- 9. MODAL HELPERS ---
         function openModal(room) {
             activeModalRoom = room;
             document.getElementById('modal-title').innerText = room.name;
@@ -787,9 +908,7 @@
             document.getElementById('modal-area').innerText = room.area;
             document.getElementById('modal-capacity').innerText = room.capacity;
             
-            const iconEl = document.getElementById('modal-icon');
-            iconEl.className = `fa-solid ${room.icon}`;
-
+            document.getElementById('modal-icon').className = `fa-solid ${room.icon}`;
             const iconBg = document.getElementById('modal-icon-bg');
             iconBg.style.backgroundColor = `${room.color}25`;
             iconBg.style.color = room.color;
@@ -820,24 +939,23 @@
             const icon = document.getElementById('light-icon');
 
             if (isDayLight) {
-                icon.className = "fa-solid fa-sun text-lg text-amber-400";
-                scene.background = new THREE.Color(0x0f172a);
-                dirLight.intensity = 1.2;
-                hemiLight.intensity = 0.7;
-                roomLights.forEach(l => l.intensity = 0.6);
+                icon.className = "fa-solid fa-sun";
+                scene.background = new THREE.Color(0x0b1120);
+                dirLight.intensity = 1.25;
+                hemiLight.intensity = 0.75;
+                roomLights.forEach(l => l.intensity = 0.65);
             } else {
-                // Night mode
-                icon.className = "fa-solid fa-moon text-lg text-indigo-400";
+                icon.className = "fa-solid fa-moon text-indigo-400";
                 scene.background = new THREE.Color(0x020617);
                 dirLight.intensity = 0.15;
                 hemiLight.intensity = 0.2;
-                roomLights.forEach(l => l.intensity = 1.2); // Warm artificial ceiling lamps glow
+                roomLights.forEach(l => l.intensity = 1.3);
             }
         }
 
         function resetCamera() {
             if (viewMode === 'dollhouse') {
-                gsap.to(camera.position, { x: 0, y: 18, z: 16, duration: 1 });
+                gsap.to(camera.position, { x: 0, y: 19, z: 17, duration: 1 });
                 gsap.to(controls.target, { x: 0, y: 0, z: 0, duration: 1 });
             } else {
                 cameraYaw = -Math.PI / 2;
@@ -866,24 +984,20 @@
         function animate(time) {
             requestAnimationFrame(animate);
 
-            // Orbit controls update in Dollhouse view
             if (viewMode === 'dollhouse') {
                 controls.update();
             }
 
-            // Animate Hotspot Meshes (Glow pulses)
+            // Pulse ring hotspots
             const scale = 1 + Math.sin(time * 0.004) * 0.08;
             hotspotMeshes.forEach(m => {
                 m.scale.set(scale, scale, scale);
             });
 
-            // Render 3D Scene
             renderer.render(scene, camera);
-
-            // Render 2D Mini-Map
             drawMiniMap();
         }
     </script>
 </body>
 </html>
-``
+```
